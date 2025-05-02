@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "280586029732",
+    "project_id": "affordablehousefinder-698fe",
+    "storage_bucket": "affordablehousefinder-698fe.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:280586029732:android:14651dfee62a85fabe7431",
+        "android_client_info": {
+          "package_name": "com.example.affordablehousefinderrevamp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUKxk7CIM9EN15mnsf_e2vcByDImPnJX0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

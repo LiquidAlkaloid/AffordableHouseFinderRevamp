@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="my_custom_background">#e8b4b8</color>
+    <color name="screen_background">#FFFBFB</color>
+    <color name="content_background">#FFEFEF</color>
+    <color name="edittext_background">#FFF9E6</color>
+    <color name="button_background">#333333</color>
+    <color name="button_text_color">#FFFFFF</color>
+    <color name="text_primary">#000000</color>
+    <color name="text_secondary">#666666</color>
+    <color name="form_label_color">#888888</color>
+
+
+    <color name="detail_screen_background">#FDFBFC</color>
+    <color name="content_background_color">#FFFFFF</color>
+    <color name="pink_button_background">#F8C8DC</color>
+    <color name="pink_button_text_color">#A65E7C</color>
+    <color name="pink_accent_color">#D81B60</color>
+    <color name="text_primary_color">#333333</color>
+    <color name="text_secondary_color">#757575</color>
+    <color name="text_white_secondary">#E0E0E0</color>
+    <color name="rating_star_color">#FFC107</color>
+
+
+    <color name="screen_background_bookmarks">#F8F4F6</color>
+    <color name="card_background_bookmarks">#FFFFFF</color>
+    <color name="bottom_nav_background_bookmarks">#EAE0E4</color>
+    <color name="text_primary_bookmarks">#333333</color>
+    <color name="text_secondary_bookmarks">#666666</color>
+    <color name="bottom_nav_item_active">#A65E7C</color>
+    <color name="bottom_nav_item_inactive">#8A8A8A</color>
+
+</resources>
