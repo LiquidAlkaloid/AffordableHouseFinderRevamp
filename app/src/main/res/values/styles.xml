@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/main_background_pink</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="BaseButtonStyle" parent="Widget.AppCompat.Button">
+        <item name="android:layout_width">0dp</item> <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:elevation">2dp</item>
+    </style>
+
+    <style name="EditListingButton" parent="BaseButtonStyle">
+        <item name="android:background">@drawable/button_bg_yellow</item>
+        <item name="android:textColor">@color/button_yellow_edit_text</item>
+    </style>
+
+    <style name="RemoveListingButton" parent="BaseButtonStyle">
+        <item name="android:background">@drawable/button_bg_red</item>
+        <item name="android:textColor">@color/button_red_remove_text</item>
+    </style>
+
+    <style name="AlreadyListedButton" parent="BaseButtonStyle">
+        <item name="android:background">@drawable/button_bg_blue</item>
+        <item name="android:textColor">@color/button_blue_already_listed_text</item>
+    </style>
+
+    <style name="AddListingButton" parent="BaseButtonStyle">
+        <item name="android:background">@drawable/button_bg_green</item>
+        <item name="android:textColor">@color/button_green_add_text</item>
+    </style>
+
+</resources>

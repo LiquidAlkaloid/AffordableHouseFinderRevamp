@@ -3,10 +3,9 @@
     <string name="logo_description">Chargit Logo</string>
 
     <string name="house_image_description">Image of the modern house</string>
-    <string name="close_button_description">Close details</string>
-    <string name="bookmark_button_description">Bookmark property</string>
+    <string name="close_button_description">Close details</string> <string name="bookmark_button_description">Bookmark property</string>
 
-    <string name="close_button_description">Close bookmarks</string>
+    <string name="close_bookmarks_button_description">Close bookmarks</string>
     <string name="bookmarked_house_image_description">Image of bookmarked house</string>
     <string name="title_home">Home</string>
     <string name="title_chat">Chat</string>

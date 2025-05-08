@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="transparent">#00000000</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="my_custom_background">#e8b4b8</color>
@@ -12,7 +13,6 @@
     <color name="text_secondary">#666666</color>
     <color name="form_label_color">#888888</color>
 
-
     <color name="detail_screen_background">#FDFBFC</color>
     <color name="content_background_color">#FFFFFF</color>
     <color name="pink_button_background">#F8C8DC</color>
@@ -23,7 +23,6 @@
     <color name="text_white_secondary">#E0E0E0</color>
     <color name="rating_star_color">#FFC107</color>
 
-
     <color name="screen_background_bookmarks">#F8F4F6</color>
     <color name="card_background_bookmarks">#FFFFFF</color>
     <color name="bottom_nav_background_bookmarks">#EAE0E4</color>
@@ -31,5 +30,29 @@
     <color name="text_secondary_bookmarks">#666666</color>
     <color name="bottom_nav_item_active">#A65E7C</color>
     <color name="bottom_nav_item_inactive">#8A8A8A</color>
+
+    <color name="colorPrimary">#FFF0F0</color>
+    <color name="colorPrimaryDark">#FADADD</color>
+    <color name="colorAccent">#D81B60</color> <color name="top_bar_background">#FFF5F5</color>
+    <color name="main_background_pink">#FADADD</color>
+    <color name="title_red">#F44336</color>
+    <color name="card_background_white">#FFFFFF</color>
+    <color name="text_black">#000000</color>
+    <color name="text_dark_gray">#424242</color>
+    <color name="text_blue_empty_listing">#2196F3</color>
+
+    <color name="button_yellow_edit_bg">#FFEB3B</color>
+    <color name="button_yellow_edit_text">#000000</color>
+
+    <color name="button_red_remove_bg">#F44336</color>
+    <color name="button_red_remove_text">#FFFFFF</color>
+
+    <color name="button_blue_already_listed_bg">#304FFE</color>
+    <color name="button_blue_already_listed_text">#FFFFFF</color>
+
+    <color name="button_green_add_bg">#4CAF50</color>
+    <color name="button_green_add_text">#FFFFFF</color>
+
+    <color name="empty_listing_placeholder_bg">#F5E6E6</color>
 
 </resources>
