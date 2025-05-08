@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="transparent">#00000000</color>
-    <color name="black">#FF000000</color>
+    <color name="upload_screen_background">#1C1C1E</color>
+    <color name="upload_toolbar_background">#2C2C2E</color>
+    <color name="upload_text_primary_dark">#FFFFFF</color>
+    <color name="upload_text_secondary_dark">#AEAEB2</color>
+    <color name="upload_icon_tint_dark">#FFFFFF</color>
+    <color name="upload_new_photo_bg">#3A3A3C</color>
+    <color name="placeholder_color">#CCCCCC</color> <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="my_custom_background">#e8b4b8</color>
     <color name="screen_background">#FFFBFB</color>
@@ -13,17 +18,14 @@
     <color name="text_secondary">#666666</color>
     <color name="form_label_color">#888888</color>
 
+
     <color name="detail_screen_background">#FDFBFC</color>
     <color name="content_background_color">#FFFFFF</color>
     <color name="pink_button_background">#F8C8DC</color>
     <color name="pink_button_text_color">#A65E7C</color>
-    <color name="pink_accent_color">#D81B60</color>
-    <color name="text_primary_color">#333333</color>
-    <color name="text_secondary_color">#757575</color>
-    <color name="text_white_secondary">#E0E0E0</color>
-    <color name="rating_star_color">#FFC107</color>
-
-    <color name="screen_background_bookmarks">#F8F4F6</color>
+    <color name="pink_accent_color">#D81B60</color> <color name="text_primary_color">#333333</color>
+    <color name="text_secondary_color">#757575</color> <color name="text_white_secondary">#E0E0E0</color>
+    <color name="rating_star_color">#FFC107</color> <color name="screen_background_bookmarks">#F8F4F6</color>
     <color name="card_background_bookmarks">#FFFFFF</color>
     <color name="bottom_nav_background_bookmarks">#EAE0E4</color>
     <color name="text_primary_bookmarks">#333333</color>
@@ -31,13 +33,13 @@
     <color name="bottom_nav_item_active">#A65E7C</color>
     <color name="bottom_nav_item_inactive">#8A8A8A</color>
 
+
     <color name="colorPrimary">#FFF0F0</color>
     <color name="colorPrimaryDark">#FADADD</color>
     <color name="colorAccent">#D81B60</color> <color name="top_bar_background">#FFF5F5</color>
     <color name="main_background_pink">#FADADD</color>
     <color name="title_red">#F44336</color>
     <color name="card_background_white">#FFFFFF</color>
-    <color name="text_black">#000000</color>
     <color name="text_dark_gray">#424242</color>
     <color name="text_blue_empty_listing">#2196F3</color>
 
@@ -54,5 +56,41 @@
     <color name="button_green_add_text">#FFFFFF</color>
 
     <color name="empty_listing_placeholder_bg">#F5E6E6</color>
+
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="grey">#FF888888</color>
+    <color name="login_pink">#C13584</color>
+
+
+    <color name="chat_list_background">#FFFFFF</color>
+    <color name="chat_list_toolbar_background">#FFFFFF</color>
+    <color name="chat_list_toolbar_title_color">#000000</color>
+    <color name="chat_list_item_background">#FDEEF0</color>
+    <color name="chat_list_item_divider">#E0E0E0</color>
+    <color name="chat_list_sender_name">#000000</color>
+    <color name="chat_list_message_snippet">#555555</color>
+    <color name="chat_list_timestamp">#777777</color>
+    <color name="chat_list_unread_badge_background">#F44336</color>
+    <color name="chat_list_unread_badge_text">#FFFFFF</color>
+    <color name="chat_list_icon_tint">#757575</color>
+    <color name="chat_list_logo_color">#D81B60</color>
+
+    <color name="profile_background_top">#FFFFFF</color>
+    <color name="profile_background_main">#F8E8EA</color>
+    <color name="profile_text_welcome">#A0A0A0</color>
+    <color name="profile_text_name">#000000</color>
+    <color name="profile_text_verified">#4CAF50</color>
+    <color name="profile_text_details">#333333</color>
+    <color name="profile_section_title">#000000</color>
+    <color name="profile_show_all_text">#D81B60</color>
+    <color name="profile_option_text">#000000</color>
+    <color name="profile_option_subtitle">#757575</color>
+    <color name="profile_icon_tint">#757575</color>
+    <color name="profile_placeholder_listing_bg">#E0E0E0</color>
+    <color name="profile_bottom_nav_background">#E1D5D7</color>
 
 </resources>

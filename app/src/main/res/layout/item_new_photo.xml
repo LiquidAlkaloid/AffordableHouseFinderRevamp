@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/new_photo_item_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@color/upload_new_photo_bg"
+    android:padding="8dp"
+    android:layout_margin="2dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
+
+    <ImageView
+        android:id="@+id/new_photo_icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_camera_alt_white_24dp"
+        android:contentDescription="@string/upload_camera_icon_description"
+        android:layout_marginBottom="4dp"/>
+
+    <TextView
+        android:id="@+id/new_photo_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/upload_new_photo"
+        android:textColor="@color/upload_text_primary_dark"
+        android:textSize="12sp"/>
+</LinearLayout>

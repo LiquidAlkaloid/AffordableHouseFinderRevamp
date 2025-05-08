@@ -93,7 +93,7 @@ public class Bookmarks extends AppCompatActivity {
                     // Handle Chat navigation
                     Toast.makeText(Bookmarks.this, "Chat selected", Toast.LENGTH_SHORT).show();
                     return true;
-                } else if (itemId == R.id.navigation_buy) {
+                } else if (itemId == R.id.navigation_sell) {
                     // Handle Buy navigation
                     Toast.makeText(Bookmarks.this, "Buy selected", Toast.LENGTH_SHORT).show();
                     return true;

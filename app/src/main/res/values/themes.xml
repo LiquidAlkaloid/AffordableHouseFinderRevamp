@@ -1,9 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Base.Theme.AffordableHouseFinderRevamp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
+
+    <style name="Theme.AffordableHouseFinderRevamp" parent="Base.Theme.AffordableHouseFinderRevamp" />
+
+    <style name="Theme.AffordableHouseFinderRevamp.NoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/upload_screen_background</item>
+        <item name="colorPrimary">@color/upload_toolbar_background</item> <item name="colorPrimaryDark">@color/upload_toolbar_background</item> <item name="colorAccent">@color/pink_accent_color</item> </style>
 
     <style name="FormLabel" parent="Widget.AppCompat.TextView">
         <item name="android:layout_width">wrap_content</item>
@@ -24,9 +27,7 @@
     </style>
 
     <style name="RatingBarAccent" parent="Theme.AppCompat">
-    <item name="colorControlNormal">@color/text_secondary_color</item>
+        <item name="colorControlNormal">@color/text_secondary_color</item>
         <item name="colorControlActivated">@color/rating_star_color</item>
     </style>
-
-    <style name="Theme.AffordableHouseFinderRevamp" parent="Base.Theme.AffordableHouseFinderRevamp" />
 </resources>
