@@ -30,10 +30,9 @@
                 android:layout_height="32dp"
                 android:layout_centerVertical="true"
                 android:layout_alignParentStart="true"
-                android:src="@drawable/ery"
+                android:src="@drawable/ic_logo_transparent"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/chat_list_logo_content_description"
-                app:tint="@color/chat_list_logo_color"
                 android:layout_marginEnd="16dp"/>
 
             <ImageButton

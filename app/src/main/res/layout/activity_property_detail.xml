@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PropertyDetail">
+    tools:context=".Buyer.PropertyDetail">
 
     <ImageView
         android:id="@+id/houseImageView"
@@ -78,6 +78,9 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
 
+
+
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/ratingSection"
         android:layout_width="0dp"
@@ -115,15 +118,15 @@
 
         <ImageButton
             android:id="@+id/bookmarkButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_bookmark_border"
+            android:layout_width="36dp"
+            android:layout_height="38dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/bookmark_button_description"
-            app:tint="@color/text_primary_color"
-            app:layout_constraintTop_toTopOf="parent"
+            android:src="@drawable/baseline_bookmark_50"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

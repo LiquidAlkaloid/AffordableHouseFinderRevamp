@@ -16,23 +16,20 @@
             android:name=".ChatListActivity"
             android:label="@string/title_activity_chat_list"
             android:exported="false"
-            android:theme="@style/Theme.AffordableHouseFinderRevamp.NoActionBar">
+            android:theme="@style/Theme.AffordableHouseFinderRevamp.NoActionBar" />
         <activity
-            android:name=".UploadActivity"
+            android:name=".Seller.UploadActivity"
             android:exported="false"
             android:label="@string/title_activity_upload"
             android:theme="@style/Theme.AffordableHouseFinderRevamp.NoActionBar" />
         <activity
-            android:name=".House_Listing_UI"
+            android:name=".Seller.Chat_Seller"
             android:exported="false" />
         <activity
-            android:name=".Chat_Admin_or_Seller"
+            android:name=".Buyer.Bookmarks"
             android:exported="false" />
         <activity
-            android:name=".Bookmarks"
-            android:exported="false" />
-        <activity
-            android:name=".PropertyDetail"
+            android:name=".Buyer.PropertyDetail"
             android:exported="false" />
         <activity
             android:name=".Homepage"

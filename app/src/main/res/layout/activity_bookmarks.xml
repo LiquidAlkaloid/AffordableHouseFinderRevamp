@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/screen_background_bookmarks"
-    tools:context=".Bookmarks">
+    tools:context=".Buyer.Bookmarks">
 
     <TextView
         android:id="@+id/titleTextView"
@@ -24,14 +24,15 @@
         android:id="@+id/closeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_close"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:padding="16dp"
         android:contentDescription="@string/close_button_description"
-        app:tint="@color/text_primary_bookmarks"
-        app:layout_constraintTop_toTopOf="@id/titleTextView"
+        android:padding="16dp"
+        android:src="@drawable/ic_close"
         app:layout_constraintBottom_toBottomOf="@id/titleTextView"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/titleTextView"
+        app:layout_constraintVertical_bias="0.284"
+        app:tint="@color/text_primary_bookmarks" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/bookmarksRecyclerView"

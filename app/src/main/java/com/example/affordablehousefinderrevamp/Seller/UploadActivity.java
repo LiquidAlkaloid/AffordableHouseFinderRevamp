@@ -1,4 +1,4 @@
-package com.example.affordablehousefinderrevamp;
+package com.example.affordablehousefinderrevamp.Seller;
 
 import android.Manifest;
 import android.app.Activity;
@@ -10,7 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -18,7 +17,6 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -28,8 +26,10 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.affordablehousefinderrevamp.GalleryImageAdapter;
+import com.example.affordablehousefinderrevamp.R;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class UploadActivity extends AppCompatActivity implements GalleryImageAdapter.OnNewPhotoClickListener, GalleryImageAdapter.OnImageClickListener {

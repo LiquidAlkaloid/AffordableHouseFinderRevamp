@@ -1,4 +1,4 @@
-package com.example.affordablehousefinderrevamp;
+package com.example.affordablehousefinderrevamp.Buyer;
 
 import com.example.affordablehousefinderrevamp.R;
 

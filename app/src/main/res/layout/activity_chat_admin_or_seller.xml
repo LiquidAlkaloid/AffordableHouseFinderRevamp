@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Chat_Admin_or_Seller">
+    tools:context=".Seller.Chat_Seller">
 
     <!-- HEADER BACKGROUND -->
 
@@ -23,10 +23,10 @@
 
     <ImageView
         android:id="@+id/ic_back"
-        android:layout_width="26dp"
-        android:layout_height="23dp"
+        android:layout_width="42dp"
+        android:layout_height="30dp"
         android:layout_margin="16dp"
-        android:src="@drawable/header_bg_arrow"
+        android:src="@drawable/ic_back_arrow"
         app:layout_constraintStart_toStartOf="@id/header_bg"
         app:layout_constraintTop_toTopOf="@id/header_bg" />
 
@@ -52,7 +52,7 @@
         android:layout_margin="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="28dp"
-        android:src="@drawable/ic_menu"
+        android:src="@drawable/ic_kebab_menu"
         app:layout_constraintEnd_toEndOf="@id/header_bg"
         app:layout_constraintTop_toTopOf="@id/header_bg" />
 
@@ -297,7 +297,7 @@
             android:layout_height="24dp"
             android:layout_marginStart="12dp"
             android:contentDescription="Gallery"
-            android:src="@drawable/ic_gallery" />
+            android:src="@drawable/ic_open_gallery" />
 
         <ImageView
             android:id="@+id/ic_attach"
@@ -305,7 +305,7 @@
             android:layout_height="24dp"
             android:layout_marginStart="12dp"
             android:contentDescription="Attach"
-            android:src="@drawable/ic_attach" />
+            android:src="@drawable/ic_attach_clip" />
     </LinearLayout>
 
     <TextView

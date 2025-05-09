@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "280586029732",
-    "project_id": "affordablehousefinder-698fe",
-    "storage_bucket": "affordablehousefinder-698fe.firebasestorage.app"
+    "project_number": "125042376075",
+    "project_id": "chargit-624bd",
+    "storage_bucket": "chargit-624bd.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:280586029732:android:14651dfee62a85fabe7431",
+        "mobilesdk_app_id": "1:125042376075:android:f4567b3bef388dd59c838e",
         "android_client_info": {
           "package_name": "com.example.affordablehousefinderrevamp"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAUKxk7CIM9EN15mnsf_e2vcByDImPnJX0"
+          "current_key": "AIzaSyBus4JkD7vu8jWIyJtxuGjK1A9H_4pyZkc"
         }
       ],
       "services": {

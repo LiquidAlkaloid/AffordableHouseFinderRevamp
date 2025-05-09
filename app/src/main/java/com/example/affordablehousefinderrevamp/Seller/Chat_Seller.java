@@ -1,4 +1,4 @@
-package com.example.affordablehousefinderrevamp;
+package com.example.affordablehousefinderrevamp.Seller;
 
 import android.os.Bundle;
 
@@ -8,7 +8,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class Chat_Admin_or_Seller extends AppCompatActivity {
+import com.example.affordablehousefinderrevamp.R;
+
+public class Chat_Seller extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
