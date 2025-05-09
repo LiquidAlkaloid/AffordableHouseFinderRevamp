@@ -13,6 +13,15 @@
         android:theme="@style/Theme.AffordableHouseFinderRevamp"
         tools:targetApi="31">
         <activity
+            android:name=".Seller.SellerPropertyDetails"
+            android:exported="false" />
+        <activity
+            android:name=".Seller.HouseListings"
+            android:exported="false" />
+        <activity
+            android:name=".Buyer.BuyerProfile"
+            android:exported="false" />
+        <activity
             android:name=".Seller.SellerProfile"
             android:exported="false" />
         <activity

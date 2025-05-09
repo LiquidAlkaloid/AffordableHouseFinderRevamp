@@ -1,0 +1,216 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/profileAltScreenBackground"
+    tools:context=".Buyer.BuyerProfile">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/top_user_info_section_alt"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/profileTopSectionBackground"
+        android:paddingBottom="24dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/profile_image_alt"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:src="@drawable/ic_person_placeholder"
+            android:contentDescription="Profile Picture"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/welcome_text_alt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome"
+            android:textSize="16sp"
+            android:textColor="@color/textColorSecondary"
+            app:layout_constraintStart_toEndOf="@id/profile_image_alt"
+            app:layout_constraintTop_toTopOf="@id/profile_image_alt"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"/>
+
+        <TextView
+            android:id="@+id/user_name_text_alt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="John Smith"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/textColorPrimary"
+            app:layout_constraintStart_toStartOf="@id/welcome_text_alt"
+            app:layout_constraintTop_toBottomOf="@id/welcome_text_alt"
+            android:layout_marginTop="2dp"/>
+
+        <TextView
+            android:id="@+id/verified_text_alt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Verified"
+            android:textSize="13sp"
+            android:textColor="@color/colorAccent"
+            app:layout_constraintStart_toStartOf="@id/user_name_text_alt"
+            app:layout_constraintTop_toBottomOf="@id/user_name_text_alt"
+            android:layout_marginTop="2dp"
+            android:drawablePadding="4dp"/>
+
+        <ImageView
+            android:id="@+id/more_options_icon_alt"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_kebab_menu"
+            android:contentDescription="More Options"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/profile_image_alt"
+            android:layout_marginEnd="20dp"
+            android:padding="4dp"/>
+
+        <ImageView
+            android:id="@+id/email_icon_alt"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_email_24"
+            app:layout_constraintStart_toStartOf="@id/profile_image_alt"
+            app:layout_constraintTop_toBottomOf="@id/profile_image_alt"
+            android:layout_marginTop="24dp"
+            app:tint="@color/textColorSecondary"/>
+
+        <TextView
+            android:id="@+id/email_text_alt"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="hello@reallygreatsite.com"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="14sp"
+            app:layout_constraintStart_toEndOf="@id/email_icon_alt"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/email_icon_alt"
+            app:layout_constraintBottom_toBottomOf="@id/email_icon_alt"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="24dp"/>
+
+        <ImageView
+            android:id="@+id/phone_icon_alt"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_phone_number_24"
+            app:layout_constraintStart_toStartOf="@id/email_icon_alt"
+            app:layout_constraintTop_toBottomOf="@id/email_icon_alt"
+            android:layout_marginTop="12dp"
+            app:tint="@color/textColorSecondary"/>
+
+        <TextView
+            android:id="@+id/phone_text_alt"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="+123-456-7890"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="14sp"
+            app:layout_constraintStart_toEndOf="@id/phone_icon_alt"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/phone_icon_alt"
+            app:layout_constraintBottom_toBottomOf="@id/phone_icon_alt"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="24dp"/>
+
+        <ImageView
+            android:id="@+id/address_icon_alt"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_address_24"
+            app:layout_constraintStart_toStartOf="@id/phone_icon_alt"
+            app:layout_constraintTop_toBottomOf="@id/phone_icon_alt"
+            android:layout_marginTop="12dp"
+            app:tint="@color/textColorSecondary"/>
+
+        <TextView
+            android:id="@+id/address_text_alt"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="123 Aurora Hill, Baguio City"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="14sp"
+            app:layout_constraintStart_toEndOf="@id/address_icon_alt"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/address_icon_alt"
+            app:layout_constraintBottom_toBottomOf="@id/address_icon_alt"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="24dp"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/top_user_info_section_alt"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="32dp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="24dp">
+
+            <RelativeLayout
+                android:id="@+id/privacy_policy_row_alt"
+                style="@style/ProfileOptionRow">
+                <ImageView
+                    android:id="@+id/privacy_policy_icon_alt"
+                    style="@style/ProfileOptionIcon"
+                    android:src="@drawable/ic_privacy_policy"
+                    android:contentDescription="Privacy Policy Icon"/>
+                <TextView
+                    android:id="@+id/privacy_policy_text_alt"
+                    style="@style/ProfileOptionText"
+                    android:layout_toEndOf="@id/privacy_policy_icon_alt"
+                    android:text="Privacy &amp; Policy"/>
+                <TextView
+                    style="@style/ProfileOptionSubText"
+                    android:layout_below="@id/privacy_policy_text_alt"
+                    android:layout_alignStart="@id/privacy_policy_text_alt"
+                    android:text="Policy"/>
+                <ImageView
+                    style="@style/ProfileOptionArrow"
+                    android:src="@drawable/ic_forward_project"
+                    android:contentDescription="Arrow Icon"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/logout_row_alt"
+                style="@style/ProfileOptionRow"
+                android:layout_marginTop="16dp">
+                <ImageView
+                    android:id="@+id/logout_icon_alt"
+                    style="@style/ProfileOptionIcon"
+                    android:src="@drawable/ic_logout"
+                    android:contentDescription="Logout Icon"/>
+                <TextView
+                    android:id="@+id/logout_text_alt"
+                    style="@style/ProfileOptionText"
+                    android:layout_toEndOf="@id/logout_icon_alt"
+                    android:text="Logout"/>
+                <ImageView
+                    style="@style/ProfileOptionArrow"
+                    android:src="@drawable/ic_forward_project"
+                    android:contentDescription="Arrow Icon"/>
+            </RelativeLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

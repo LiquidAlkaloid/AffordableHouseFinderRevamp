@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="15dp"
+    app:cardElevation="4dp"
+    android:layout_marginBottom="16dp"
+    app:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/house_image"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/placeholder"
+            android:background="@color/placeholder_image_bg"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@string/house_image_description2" />
+
+        <TextView
+            android:id="@+id/house_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Modern House Name"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:id="@+id/house_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="P 00,000,000"
+            android:textSize="16sp"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:id="@+id/house_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Location Details"
+            android:textSize="14sp"
+            android:textColor="@color/grey_text"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/house_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="STATUS : UNKNOWN"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/status_pending_color"
+            android:layout_marginBottom="12dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <Button
+                android:id="@+id/button_edit_listing"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/edit_listing_button"
+                app:backgroundTint="@color/chargit_yellow_button"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                android:layout_marginEnd="4dp"/>
+
+            <Button
+                android:id="@+id/button_already_listed"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/already_listed_button"
+                app:backgroundTint="@color/chargit_blue_button"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"/>
+
+            <Button
+                android:id="@+id/button_remove_listing"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/remove_listing_button"
+                app:backgroundTint="@color/chargit_red_button"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:layout_marginStart="4dp"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

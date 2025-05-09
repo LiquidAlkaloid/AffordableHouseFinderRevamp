@@ -94,5 +94,32 @@
     <color name="profile_bottom_nav_background">#E1D5D7</color>
 
 
+    <color name="profileScreenBackground">#FFF0F5</color>
+    <color name="profileTopSectionBackground">#FFFFFF</color>
+    <color name="profileContentBackground">#FCE8F0</color>
+    <color name="textColorPrimary">#000000</color>
+    <color name="textColorSecondary">#757575</color>
+    <color name="textColorHint">#BDBDBD</color>
+    <color name="iconPlaceholderColor">#757575</color>
+    <color name="listingPlaceholderBackground">#E0E0E0</color>
+
+    <color name="profileAltScreenBackground">#FEF7F8</color>
+    <color name="profileAltContentBackground">#FDE7EB</color>
+
+    <color name="chargit_pink_bg">#FDEFEF</color>
+    <color name="chargit_red_text">#D32F2F</color>
+    <color name="chargit_yellow_button">#FFEB3B</color>
+    <color name="chargit_blue_button">#2196F3</color>
+    <color name="chargit_red_button">#F44336</color>
+    <color name="chargit_green_button">#4CAF50</color>
+
+    <color name="status_available_color">#4CAF50</color>
+    <color name="status_pending_color">#FF9800</color>
+    <color name="grey_text">#757575</color>
+    <color name="disabled_button_color_bg">#BDBDBD</color>
+    <color name="placeholder_image_bg">#E0E0E0</color>
+    <color name="placeholder_image_bg_new">#C5CAE9</color>
+
+
 
     </resources>

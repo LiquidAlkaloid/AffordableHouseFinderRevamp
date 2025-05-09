@@ -47,4 +47,48 @@
         <item name="android:textColor">@color/button_green_add_text</item>
     </style>
 
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="colorControlNormal">@color/iconPlaceholderColor</item>
+    </style>
+
+    <style name="ListingItemPlaceholder">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">100dp</item> <item name="android:layout_columnWeight">1</item> <item name="android:layout_rowWeight">1</item> <item name="android:layout_margin">4dp</item> <item name="android:scaleType">centerCrop</item> <item name="android:background">@color/listingPlaceholderBackground</item> </style>
+
+    <style name="ProfileOptionRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@android:color/transparent</item> <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:paddingStart">8dp</item> <item name="android:paddingEnd">8dp</item> <item name="android:clickable">true</item> <item name="android:focusable">true</item> <item name="android:foreground">?android:attr/selectableItemBackground</item> </style>
+
+    <style name="ProfileOptionIcon">
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_height">24dp</item>
+        <item name="android:layout_alignParentStart">true</item> <item name="android:layout_centerVertical">true</item> <item name="android:layout_marginEnd">16dp</item> <item name="android:tint">@color/textColorSecondary</item> </style>
+
+    <style name="ProfileOptionText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerVertical">false</item> <item name="android:layout_alignTop">@id/placeholder_icon_id_for_style_reference_only</item> <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="ProfileOptionSubText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/textColorSecondary</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:layout_marginStart">0dp</item> </style>
+
+    <style name="ProfileOptionArrow">
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_height">24dp</item>
+        <item name="android:layout_alignParentEnd">true</item> <item name="android:layout_centerVertical">true</item> <item name="android:tint">@color/textColorHint</item> </style>
+
+
 </resources>

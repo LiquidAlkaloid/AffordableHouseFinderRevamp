@@ -47,4 +47,13 @@
     <string name="profile_option_arrow_description">Go to option</string>
     <string name="profile_user_avatar_description">User profile picture</string>
 
+    <string name="chargit_logo_description">Chargit App Logo</string>
+    <string name="house_image_description2">Image of the listed house</string>
+
+    <string name="your_listed_houses_title">Your Listed Houses</string>
+    <string name="add_listing_button_text">ADD LISTING</string>
+    <string name="edit_listing_button">EDIT LISTING</string>
+    <string name="already_listed_button">ALREADY LISTED</string>
+    <string name="remove_listing_button">REMOVE LISTING</string>
+
 </resources>
