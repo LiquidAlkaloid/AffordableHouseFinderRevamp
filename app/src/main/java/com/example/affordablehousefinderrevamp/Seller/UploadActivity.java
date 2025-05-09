@@ -26,7 +26,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.affordablehousefinderrevamp.GalleryImageAdapter;
 import com.example.affordablehousefinderrevamp.R;
 
 import java.util.ArrayList;

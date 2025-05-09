@@ -1,4 +1,4 @@
-package com.example.affordablehousefinderrevamp;
+package com.example.affordablehousefinderrevamp.Seller;
 
 import android.content.Context;
 import android.net.Uri;
@@ -10,6 +10,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.affordablehousefinderrevamp.R;
+
 import java.util.ArrayList;
 import java.util.List;
 

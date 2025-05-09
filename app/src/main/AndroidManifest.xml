@@ -13,9 +13,21 @@
         android:theme="@style/Theme.AffordableHouseFinderRevamp"
         tools:targetApi="31">
         <activity
+            android:name=".Seller.SellerProfile"
+            android:exported="false" />
+        <activity
+            android:name=".Buyer.Chat_Buyer"
+            android:exported="false" />
+        <activity
+            android:name=".Buyer.BuyerRegister"
+            android:exported="false" />
+        <activity
+            android:name=".Seller.SellerRegister"
+            android:exported="false" />
+        <activity
             android:name=".ChatListActivity"
-            android:label="@string/title_activity_chat_list"
             android:exported="false"
+            android:label="@string/title_activity_chat_list"
             android:theme="@style/Theme.AffordableHouseFinderRevamp.NoActionBar" />
         <activity
             android:name=".Seller.UploadActivity"
@@ -32,7 +44,7 @@
             android:name=".Buyer.PropertyDetail"
             android:exported="false" />
         <activity
-            android:name=".Homepage"
+            android:name=".Buyer.Homepage"
             android:exported="false" />
         <activity
             android:name=".Register"

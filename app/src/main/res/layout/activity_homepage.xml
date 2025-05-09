@@ -5,7 +5,7 @@
     android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Homepage">
+    tools:context=".Buyer.Homepage">
 
     <LinearLayout
         android:id="@+id/topBar"
@@ -142,7 +142,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="#D6B4B4"
-        app:menu="@menu/bottom_navigation_menu"
+        app:menu="@menu/bottom_navigation_menu_buyer"
         app:itemIconTint="@color/bottom_nav_item_selector"
         app:itemTextColor="@color/bottom_nav_item_selector"
         app:labelVisibilityMode="labeled" />
