@@ -120,6 +120,16 @@
     <color name="placeholder_image_bg">#E0E0E0</color>
     <color name="placeholder_image_bg_new">#C5CAE9</color>
 
+    <color name="pink">#e8b4b8</color>
+
+    <color name="property_image_icon_tint">#FFFFFFFF</color> <color name="pink_background">#FFE0E0</color>
+    <color name="property_price_text_color">#D32F2F</color>
+    <color name="detail_icon_tint">#A9A9A9</color> <color name="detail_text_color">#808080</color> <color name="button_background_tint_pink">#FFE0E0</color>
+    <color name="button_text_color_reddish">#D32F2F</color>
+
+    <color name="medium_gray">#888888</color>
+    <color name="dark_gray">#555555</color>
+
 
 
     </resources>

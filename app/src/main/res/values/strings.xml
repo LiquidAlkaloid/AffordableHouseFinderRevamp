@@ -56,4 +56,37 @@
     <string name="already_listed_button">ALREADY LISTED</string>
     <string name="remove_listing_button">REMOVE LISTING</string>
 
+
+
+    <string name="property_image_description">Image of the property</string>
+    <string name="back_button">Back</string>
+    <string name="share_button">Share</string>
+    <string name="more_options_button">More options</string>
+    <string name="location_icon">Location icon</string>
+    <string name="condition_icon">Property condition icon</string>
+    <string name="bookmarks_icon">Bookmarks icon</string>
+    <string name="edit_description_button">Edit description</string>
+
+    <string name="property_title_default">MODERN HOUSE</string>
+    <string name="property_price_default">PHP 20,000,000</string>
+    <string name="location_default">Bakakeng North</string>
+    <string name="condition_default">Brand New</string>
+    <string name="bookmarks_default">0 Bookmarks</string>
+    <string name="description_label">Description</string>
+    <string name="description_default_text">This modern house is located within Northern Bakakeng, complete with 1 king-size room and 2 rooms, a balcony, and a lounge, and a toilet and shower on the second floor. On the first floor, there is a large kitchen, living room, storage area, and toilets. The home is close to accessible stores and to the main road where jeeps frequent the area.</string>
+
+    <string name="view_insights_button_text">View Insights</string>
+    <string name="no_chats_button_text">No chats yet</string>
+
+    <string name="share_clicked_toast">Share clicked</string>
+    <string name="more_options_clicked_toast">More options clicked</string>
+    <string name="edit_description_dialog_title">Edit Description</string>
+    <string name="edit_description_hint">Enter description</string>
+    <string name="save_button">Save</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="description_updated_toast">Description updated</string>
+    <string name="description_empty_toast">Description cannot be empty</string>
+    <string name="view_insights_clicked_toast">View Insights clicked</string>
+    <string name="no_chats_yet_clicked_toast">No chats yet clicked</string>
+
 </resources>

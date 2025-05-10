@@ -42,7 +42,7 @@ public class Bookmarks extends AppCompatActivity {
         // 2. Get references to the views
         bookmarksRecyclerView = findViewById(R.id.bookmarksRecyclerView);
         closeButton = findViewById(R.id.closeButton);
-        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
 
         // 3. Create and set a LayoutManager
         bookmarksRecyclerView.setLayoutManager(new LinearLayoutManager(this));
