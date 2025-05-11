@@ -89,4 +89,15 @@
     <string name="view_insights_clicked_toast">View Insights clicked</string>
     <string name="no_chats_yet_clicked_toast">No chats yet clicked</string>
 
+    <string name="privacy_policy_text">
+        &lt;b&gt;1. Introduction&lt;/b&gt;&lt;br&gt;&lt;br&gt;
+        We love our community at Chargit. It is extremely important to us that you not only have a pleasant experience buying and selling on Chargit, but also that you feel comfortable and safe while doing so.&lt;br&gt;&lt;br&gt;
+        This Privacy Policy supplements our Terms of Service and explains how Chargit, its subsidiaries, and affiliates that link to this Privacy Policy, handle information collected and received in the course of your use of our websites, mobile application, and services (collectively, the “Services”). It also governs the collection, use, and disclosure of your information.&lt;br&gt;&lt;br&gt;
+        &lt;b&gt;2. Information we collect and receive&lt;/b&gt;&lt;br&gt;&lt;br&gt;
+        We may collect and receive information from you in the following situations:&lt;br&gt;&lt;br&gt;
+        * When you register for an account with us (“Account”).&lt;br&gt;
+        * When you choose to connect your Account with an external third-party service or application, such as Facebook.&lt;br&gt;
+        * When you use the features and functions available on our  app
+    </string>
+
 </resources>
