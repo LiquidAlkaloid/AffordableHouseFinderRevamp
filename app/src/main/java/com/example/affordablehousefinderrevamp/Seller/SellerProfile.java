@@ -37,8 +37,8 @@ public class SellerProfile extends AppCompatActivity {
     private ImageView houseImageView4;
     private ImageView houseImageView5;
     private ImageView houseImageView6;
-    private Button viewPolicyButton; // Corrected to Button
-    private Button logoutButton;    // Corrected to Button
+    private View viewPolicyRow;
+    private View logoutRow;
     private Button showAllListingsButton;
     private List<ImageView> houseImageViewList;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
@@ -59,8 +59,8 @@ public class SellerProfile extends AppCompatActivity {
         houseImageView4 = findViewById(R.id.houseImageView4);
         houseImageView5 = findViewById(R.id.houseImageView5);
         houseImageView6 = findViewById(R.id.houseImageView6);
-        viewPolicyButton = findViewById(R.id.viewPolicyButton);
-        logoutButton = findViewById(R.id.logoutButton);
+        viewPolicyRow = findViewById(R.id.privacy_policy_row);
+        logoutRow = findViewById(R.id.logout_row);
         showAllListingsButton = findViewById(R.id.show_all_button);
 
 
@@ -110,7 +110,7 @@ public class SellerProfile extends AppCompatActivity {
 
 
         // Set click listeners for the buttons
-        viewPolicyButton.setOnClickListener(new View.OnClickListener() {
+        viewPolicyRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showPrivacyPolicy(v);
@@ -118,16 +118,14 @@ public class SellerProfile extends AppCompatActivity {
         });
 
 
-        logoutButton.setOnClickListener(new View.OnClickListener() {
+        logoutRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Handle logout
                 Toast.makeText(SellerProfile.this, "Logging out...", Toast.LENGTH_SHORT).show();
+                // Add your actual logout logic here (e.g., clear session, navigate to login)
             }
         });
-
-
-
 
         showAllListingsButton.setOnClickListener(new View.OnClickListener() {
             @Override

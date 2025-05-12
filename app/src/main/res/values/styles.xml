@@ -47,14 +47,6 @@
         <item name="android:textColor">@color/button_green_add_text</item>
     </style>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textColor">@color/textColorPrimary</item>
-        <item name="colorControlNormal">@color/iconPlaceholderColor</item>
-    </style>
-
     <style name="ListingItemPlaceholder">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">100dp</item> <item name="android:layout_columnWeight">1</item> <item name="android:layout_rowWeight">1</item> <item name="android:layout_margin">4dp</item> <item name="android:scaleType">centerCrop</item> <item name="android:background">@color/listingPlaceholderBackground</item> </style>
@@ -74,7 +66,8 @@
     <style name="ProfileOptionText">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_centerVertical">false</item> <item name="android:layout_alignTop">@id/placeholder_icon_id_for_style_reference_only</item> <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="android:layout_centerVertical">false</item>
+        <item name="android:textColor">@color/textColorPrimary</item>
         <item name="android:textSize">16sp</item>
     </style>
 

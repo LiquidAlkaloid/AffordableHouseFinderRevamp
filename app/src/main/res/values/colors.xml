@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="transparent">#00000000</color>
+
     <color name="upload_screen_background">#1C1C1E</color>
     <color name="upload_toolbar_background">#2C2C2E</color>
     <color name="upload_text_primary_dark">#FFFFFF</color>
@@ -129,6 +131,10 @@
 
     <color name="medium_gray">#888888</color>
     <color name="dark_gray">#555555</color>
+
+
+    <color name="red">#FFFF0000</color>
+    <color name="blue">#FF0000FF</color>
 
 
 

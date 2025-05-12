@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context="Seller.ChatSellerActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_chat_seller"
+        android:layout_width="0dp"
+    android:layout_height="?attr/actionBarSize"
+    android:background="?attr/colorPrimary"
+    android:elevation="4dp"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent">
+
+    <ImageView
+        android:id="@+id/iv_logo"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:src="@drawable/ic_logo_transparent"
+    android:contentDescription="@string/logo"
+    android:layout_gravity="start"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    tools:ignore="HardcodedText" />
+
+    <TextView
+        android:id="@+id/tv_toolbar_title"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/chat"
+    android:textColor="@android:color/white"
+    android:textSize="20sp"
+    android:textStyle="bold"
+    android:layout_gravity="center_horizontal"
+    tools:ignore="HardcodedText" />
+
+    <LinearLayout
+        android:id="@+id/ll_toolbar_icons"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:layout_gravity="end">
+
+    <ImageView
+        android:id="@+id/iv_bookmark"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_bookmark_24"
+        android:contentDescription="@string/bookmark"
+        android:padding="12dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        tools:ignore="HardcodedText" />
+
+    <ImageView
+        android:id="@+id/iv_more_options"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_kebab_menu_24"
+        android:contentDescription="@string/more_options"
+        android:padding="12dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        tools:ignore="HardcodedText" />
+</LinearLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+<androidx.recyclerview.widget.RecyclerView
+android:id="@+id/rv_chat_list_seller"
+android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:clipToPadding="false"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+    app:layout_constraintTop_toBottomOf="@id/toolbar_chat_seller"
+    app:layout_constraintBottom_toTopOf="@id/bottom_navigation_seller"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    tools:listitem="@layout/item_chat_seller" />
+
+<com.google.android.material.bottomnavigation.BottomNavigationView
+android:id="@+id/bottom_navigation_seller"
+android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:background="@color/bottom_nav_background_bookmarks"
+    app:itemIconTint="@color/bottom_nav_item_selector"
+    app:itemTextColor="@color/bottom_nav_item_selector"
+    app:labelVisibilityMode="labeled"
+    app:menu="@menu/bottom_navigation_menu_seller"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>

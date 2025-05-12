@@ -2,86 +2,72 @@ package com.example.affordablehousefinderrevamp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class SellerRegister extends AppCompatActivity {
-
-    private EditText nameEditText, emailEditText, passwordEditText, phoneEditText, addressEditText;
-    private Button signupButton, buyerRegisterButton;
-    private TextView loginPromptTextView;
+    private EditText nameEt, emailEt, passwordEt, phoneEt, addressEt;
+    private Button signupBtn;
+    private TextView loginPrompt;
+    private FirebaseAuth auth;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_seller_register);
 
-        // Initialize views
-        nameEditText = findViewById(R.id.name_edittext);
-        emailEditText = findViewById(R.id.email_edittext);
-        passwordEditText = findViewById(R.id.password_edittext);
-        phoneEditText = findViewById(R.id.phone_edittext_seller);
-        addressEditText = findViewById(R.id.address_edittext);
-        signupButton = findViewById(R.id.signup_button);
-        buyerRegisterButton = findViewById(R.id.buyer_register_button);
-        loginPromptTextView = findViewById(R.id.login_prompt_textview);
+        auth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
-        signupButton.setOnClickListener(v -> registerSeller());
+        nameEt = findViewById(R.id.name_edittext);
+        emailEt = findViewById(R.id.email_edittext);
+        passwordEt = findViewById(R.id.password_edittext);
+        phoneEt = findViewById(R.id.phone_edittext_seller);
+        addressEt = findViewById(R.id.address_edittext);
+        signupBtn = findViewById(R.id.signup_button);
+        loginPrompt = findViewById(R.id.login_prompt_textview);
 
-        buyerRegisterButton.setOnClickListener(v -> {
-            Intent intent = new Intent(SellerRegister.this, BuyerRegister.class);
-            startActivity(intent);
-            finish();
-        });
-
-        loginPromptTextView.setOnClickListener(v -> {
-            Intent intent = new Intent(SellerRegister.this, Login.class);
-            startActivity(intent);
-            finish();
-        });
+        signupBtn.setOnClickListener(v -> registerSeller());
+        loginPrompt.setOnClickListener(v -> startActivity(new Intent(this, Login.class)));
     }
 
     private void registerSeller() {
-        String name = nameEditText.getText().toString().trim();
-        String email = emailEditText.getText().toString().trim();
-        String password = passwordEditText.getText().toString().trim();
-        String phone = phoneEditText.getText().toString().trim();
-        String address = addressEditText.getText().toString().trim();
+        String name = nameEt.getText().toString().trim();
+        String email = emailEt.getText().toString().trim();
+        String pass = passwordEt.getText().toString();
+        String phone = phoneEt.getText().toString().trim();
+        String addr = addressEt.getText().toString().trim();
 
-        if (name.isEmpty() || email.isEmpty() || password.isEmpty() || phone.isEmpty() || address.isEmpty()) {
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(pass)
+                || TextUtils.isEmpty(phone) || TextUtils.isEmpty(addr)) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Create a new seller user
-        String userId = "user_" + System.currentTimeMillis(); // Generate a simple ID
-        User seller = new User(userId, name, email, password, phone, address, "seller");
-
-        // Here you would typically save the user to a database
-        // For now, just show a success message
-        Toast.makeText(this, "Seller registration successful!", Toast.LENGTH_SHORT).show();
-
-        // Redirect to login
-        Intent intent = new Intent(SellerRegister.this, Login.class);
-        startActivity(intent);
-        finish();
+        auth.createUserWithEmailAndPassword(email, pass)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser firebaseUser = auth.getCurrentUser();
+                        String uid = firebaseUser.getUid();
+                        User user = new User(uid, name, email, phone, addr, "seller");
+                        db.collection("users").document(uid).set(user)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(this, Login.class));
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    } else {
+                        Toast.makeText(this, "Auth failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }
-
-/**
- How to Use:
-
- Save the main XML code as a layout file (e.g., activity_create_account.xml) in your project's res/layout directory.
- Create the three drawable XML files (shape_*.xml) in the res/drawable directory.
- Add the color definitions to your res/values/colors.xml file.
- Add the string definitions to your res/values/strings.xml file.
- (Optional) Add the style definitions to your res/values/styles.xml or themes.xml file.
- Replace placeholder drawable names (@drawable/ic_logo_chargit) with your actual logo file located in res/drawable.
- In your corresponding Activity (e.g., CreateAccountActivity.java or .kt), set this layout using setContentView(R.layout.activity_create_account);.
- You will need to add Java/Kotlin code to handle button clicks (signupButton) and to show a DatePickerDialog when the Date of Birth field (dobEditText) is clicked. You'll also need logic to make the "Log in here" part of the subtitle clickable if desired.
- This code provides a solid starting point based on the visual structure of the image. You may need to fine-tune padding, margins, text sizes, and colors to get an exact match.
- * **/

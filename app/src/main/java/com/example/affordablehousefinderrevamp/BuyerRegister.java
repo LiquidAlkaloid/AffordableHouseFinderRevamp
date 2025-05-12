@@ -1,74 +1,76 @@
 package com.example.affordablehousefinderrevamp;
 
-import android.os.Bundle;
-
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
+import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BuyerRegister extends AppCompatActivity {
-
-    private EditText nameEditText, emailEditText, passwordEditText, phoneEditText, addressEditText;
-    private Button signupButton, sellerRegisterButton;
-    private TextView loginPromptTextView;
+    private EditText nameEt, emailEt, passwordEt, phoneEt, addressEt;
+    private Button signupBtn;
+    private TextView loginPrompt;
+    private FirebaseAuth auth;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_buyer_register);
 
-        // Initialize views
-        nameEditText = findViewById(R.id.name_edittext_buyer);
-        emailEditText = findViewById(R.id.email_edittext_buyer);
-        passwordEditText = findViewById(R.id.password_edittext_buyer);
-        phoneEditText = findViewById(R.id.phone_edittext_buyer);
-        addressEditText = findViewById(R.id.address_edittext_buyer);
-        signupButton = findViewById(R.id.signup_button_buyer);
-        sellerRegisterButton = findViewById(R.id.seller_register_button_buyer);
-        loginPromptTextView = findViewById(R.id.login_prompt_textview_buyer);
+        auth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
-        signupButton.setOnClickListener(v -> registerBuyer());
+        nameEt = findViewById(R.id.name_edittext_buyer);
+        emailEt = findViewById(R.id.email_edittext_buyer);
+        passwordEt = findViewById(R.id.password_edittext_buyer);
+        phoneEt = findViewById(R.id.phone_edittext_buyer);
+        addressEt = findViewById(R.id.address_edittext_buyer);
+        signupBtn = findViewById(R.id.signup_button_buyer);
+        loginPrompt = findViewById(R.id.login_prompt_textview_buyer);
 
-        sellerRegisterButton.setOnClickListener(v -> {
-            Intent intent = new Intent(BuyerRegister.this, SellerRegister.class);
-            startActivity(intent);
-            finish();
-        });
-
-        loginPromptTextView.setOnClickListener(v -> {
-            Intent intent = new Intent(BuyerRegister.this, Login.class);
-            startActivity(intent);
-            finish();
-        });
+        signupBtn.setOnClickListener(v -> registerBuyer());
+        loginPrompt.setOnClickListener(v -> startActivity(new Intent(this, Login.class)));
     }
 
     private void registerBuyer() {
-        String name = nameEditText.getText().toString().trim();
-        String email = emailEditText.getText().toString().trim();
-        String password = passwordEditText.getText().toString().trim();
-        String phone = phoneEditText.getText().toString().trim();
-        String address = addressEditText.getText().toString().trim();
+        String name = nameEt.getText().toString().trim();
+        String email = emailEt.getText().toString().trim();
+        String pass = passwordEt.getText().toString();
+        String phone = phoneEt.getText().toString().trim();
+        String addr = addressEt.getText().toString().trim();
 
-        if (name.isEmpty() || email.isEmpty() || password.isEmpty() || phone.isEmpty() || address.isEmpty()) {
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(pass)
+                || TextUtils.isEmpty(phone) || TextUtils.isEmpty(addr)) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Create a new buyer user
-        String userId = "user_" + System.currentTimeMillis(); // Generate a simple ID
-        User buyer = new User(userId, name, email, password, phone, address, "buyer");
-
-        // Here you would typically save the user to a database
-        // For now, just show a success message
-        Toast.makeText(this, "Buyer registration successful!", Toast.LENGTH_SHORT).show();
-
-        // Redirect to login
-        Intent intent = new Intent(BuyerRegister.this, Login.class);
-        startActivity(intent);
-        finish();
+        auth.createUserWithEmailAndPassword(email, pass)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser firebaseUser = auth.getCurrentUser();
+                        String uid = firebaseUser.getUid();
+                        // Save to Firestore
+                        User user = new User(uid, name, email, phone, addr, "buyer");
+                        db.collection("users").document(uid).set(user)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(this, Login.class));
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    } else {
+                        Toast.makeText(this, "Auth failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }

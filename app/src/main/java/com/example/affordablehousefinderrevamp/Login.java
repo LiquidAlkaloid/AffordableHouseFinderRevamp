@@ -2,60 +2,69 @@ package com.example.affordablehousefinderrevamp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class Login extends AppCompatActivity {
-
-    DatabaseReference databaseReference;
-
-    // Reference to "Users" node in Firebase
-    databaseReference = FirebaseDatabase.getInstance().getReference("Users");
-
-    private EditText editEmailLogin, editPasswordLogin;
-    private Button btnLogin, Signupbuttonbottom;
-    private TextView textView5;
+    private EditText emailEt, passwordEt;
+    private Button loginBtn, signupBtn;
+    private FirebaseAuth auth;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        editEmailLogin = findViewById(R.id.editEmailLogin);
-        editPasswordLogin = findViewById(R.id.editPasswordLogin);
-        btnLogin = findViewById(R.id.btnLogin);
-        Signupbuttonbottom = findViewById(R.id.Signupbuttonbottom);
-        textView5 = findViewById(R.id.textView5);
+        auth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
-        btnLogin.setOnClickListener(v -> {
-            String email = editEmailLogin.getText().toString().trim();
-            String password = editPasswordLogin.getText().toString().trim();
+        emailEt = findViewById(R.id.editEmailLogin);
+        passwordEt = findViewById(R.id.editPasswordLogin);
+        loginBtn = findViewById(R.id.btnLogin);
+        signupBtn = findViewById(R.id.Signupbuttonbottom);
 
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(Login.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
-            } else {
-                // Add your authentication logic here
-                Toast.makeText(Login.this, "Login attempt", Toast.LENGTH_SHORT).show();
-            }
-        });
+        loginBtn.setOnClickListener(v -> loginUser());
+        signupBtn.setOnClickListener(v -> startActivity(new Intent(this, BuyerRegister.class)));
+    }
 
-        Signupbuttonbottom.setOnClickListener(v -> {
-            // Redirect to role selection or directly to buyer registration
-            Intent intent = new Intent(Login.this, BuyerRegister.class);
-            startActivity(intent);
-        });
+    private void loginUser() {
+        String email = emailEt.getText().toString().trim();
+        String pass = passwordEt.getText().toString();
 
-        textView5.setOnClickListener(v -> {
-            // Handle forgot password
-            Toast.makeText(Login.this, "Forgot password clicked", Toast.LENGTH_SHORT).show();
-        });
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(pass)) {
+            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        auth.signInWithEmailAndPassword(email, pass)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser firebaseUser = auth.getCurrentUser();
+                        // Fetch userType from Firestore
+                        db.collection("users").document(firebaseUser.getUid()).get()
+                                .addOnSuccessListener(doc -> {
+                                    if (doc.exists()) {
+                                        String type = doc.getString("userType");
+                                        if ("buyer".equals(type)) {
+                                            startActivity(new Intent(this, com.example.affordablehousefinderrevamp.Buyer.Homepage.class));
+                                        } else {
+                                            startActivity(new Intent(this, com.example.affordablehousefinderrevamp.Seller.SellerProfile.class));
+                                        }
+                                        finish();
+                                    } else {
+                                        Toast.makeText(this, "User record not found", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    } else {
+                        Toast.makeText(this, "Login failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }

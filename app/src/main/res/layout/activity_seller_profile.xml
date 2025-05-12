@@ -209,41 +209,34 @@
                 android:layout_marginBottom="24dp">
 
                 <ImageView
-                    android:id="@+id/houseImageView1"
-                    style="@style/ListingItemPlaceholder"
+                    android:id="@+id/houseImageView1" style="@style/ListingItemPlaceholder"
                     android:src="@drawable/placeholder"
                     android:contentDescription="House Listing Placeholder 1"/>
                 <ImageView
-                    android:id="@+id/houseImageView2"
-                    style="@style/ListingItemPlaceholder"
+                    android:id="@+id/houseImageView2" style="@style/ListingItemPlaceholder"
                     android:src="@drawable/placeholder"
                     android:contentDescription="House Listing Placeholder 2"/>
                 <ImageView
-                    android:id="@+id/houseImageView3"
-                    style="@style/ListingItemPlaceholder"
+                    android:id="@+id/houseImageView3" style="@style/ListingItemPlaceholder"
                     android:src="@drawable/placeholder"
                     android:contentDescription="House Listing Placeholder 3"/>
                 <ImageView
-                    android:id="@+id/houseImageView4"
-                    style="@style/ListingItemPlaceholder"
+                    android:id="@+id/houseImageView4" style="@style/ListingItemPlaceholder"
                     android:src="@drawable/placeholder"
                     android:contentDescription="House Listing Placeholder 4"/>
                 <ImageView
-                    android:id="@+id/houseImageView5"
-                    style="@style/ListingItemPlaceholder"
+                    android:id="@+id/houseImageView5" style="@style/ListingItemPlaceholder"
                     android:src="@drawable/placeholder"
                     android:contentDescription="House Listing Placeholder 5"/>
                 <ImageView
-                    android:id="@+id/houseImageView6"
-                    style="@style/ListingItemPlaceholder"
+                    android:id="@+id/houseImageView6" style="@style/ListingItemPlaceholder"
                     android:src="@drawable/placeholder"
                     android:contentDescription="House Listing Placeholder 6"/>
             </GridLayout>
 
             <RelativeLayout
                 android:id="@+id/privacy_policy_row"
-                style="@style/ProfileOptionRow"
-                android:onClick="showPrivacyPolicy">
+                style="@style/ProfileOptionRow">
                 <ImageView
                     android:id="@+id/privacy_policy_icon"
                     style="@style/ProfileOptionIcon"
@@ -274,7 +267,8 @@
                     style="@style/ProfileOptionIcon"
                     android:src="@drawable/ic_logout"
                     android:contentDescription="Logout Icon"/>
-                <Button  android:id="@+id/logoutButton"
+                <TextView
+                    android:id="@+id/logout_text"
                     style="@style/ProfileOptionText"
                     android:layout_toEndOf="@id/logout_icon"
                     android:text="Logout"/>

@@ -1,6 +1,5 @@
 package com.example.affordablehousefinderrevamp;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,86 +10,43 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatViewHolder> {
+    public interface OnChatItemClickListener { void onItemClick(ChatItem item); }
 
-    private Context context;
-    private List<ChatItem> chatItems;
+    private List<ChatItem> items;
     private OnChatItemClickListener listener;
 
-    public interface OnChatItemClickListener {
-        void onItemClick(ChatItem chatItem);
-    }
-
-    public ChatListAdapter(Context context, List<ChatItem> chatItems, OnChatItemClickListener listener) {
-        this.context = context;
-        this.chatItems = chatItems;
+    public ChatListAdapter(OnChatItemClickListener listener, List<ChatItem> items) {
         this.listener = listener;
+        this.items = items;
     }
 
     @NonNull
     @Override
     public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.list_item_chat, parent, false);
-        return new ChatViewHolder(view);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_chat, parent, false);
+        return new ChatViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
-        ChatItem currentItem = chatItems.get(position);
-
-        holder.senderNameTextView.setText(currentItem.getSenderName());
-        holder.lastMessageTextView.setText(currentItem.getLastMessage());
-        holder.timestampTextView.setText(currentItem.getTimestamp());
-
-        // Use a placeholder or actual image loading library (Glide, Picasso) here
-        holder.profileImageView.setImageResource(currentItem.getProfileImageResId()); // Example: R.drawable.baseline_person_24
-
-        if (currentItem.getUnreadCount() > 0) {
-            holder.unreadCountTextView.setText(String.valueOf(currentItem.getUnreadCount()));
-            holder.unreadCountTextView.setVisibility(View.VISIBLE);
-            holder.readCheckmarkImageView.setVisibility(View.GONE);
-        } else if (currentItem.isRead()) {
-            holder.unreadCountTextView.setVisibility(View.GONE);
-            holder.readCheckmarkImageView.setVisibility(View.VISIBLE);
-        } else { // Message sent but not necessarily read, and no unread count
-            holder.unreadCountTextView.setVisibility(View.GONE);
-            holder.readCheckmarkImageView.setVisibility(View.GONE); // Or another status icon
-        }
-
-        holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onItemClick(currentItem);
-            }
-        });
+        ChatItem item = items.get(position);
+        holder.nameTv.setText(item.getSenderName());
+        holder.msgTv.setText(item.getLastMessage());
+        holder.timeTv.setText(item.getTimestamp());
+        holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
     }
 
-    @Override
-    public int getItemCount() {
-        return chatItems.size();
-    }
+    @Override public int getItemCount() { return items.size(); }
 
     static class ChatViewHolder extends RecyclerView.ViewHolder {
-        ImageView profileImageView;
-        TextView senderNameTextView;
-        TextView lastMessageTextView;
-        TextView timestampTextView;
-        TextView unreadCountTextView;
-        ImageView readCheckmarkImageView;
-
-        public ChatViewHolder(@NonNull View itemView) {
-            super(itemView);
-            profileImageView = itemView.findViewById(R.id.chat_item_profile_image);
-            senderNameTextView = itemView.findViewById(R.id.chat_item_sender_name);
-            lastMessageTextView = itemView.findViewById(R.id.chat_item_last_message);
-            timestampTextView = itemView.findViewById(R.id.chat_item_timestamp);
-            unreadCountTextView = itemView.findViewById(R.id.chat_item_unread_count);
-            readCheckmarkImageView = itemView.findViewById(R.id.chat_item_read_checkmark);
+        TextView nameTv, msgTv, timeTv;
+        ImageView profileIv;
+        ChatViewHolder(View v) {
+            super(v);
+            profileIv = v.findViewById(R.id.chat_item_profile_image);
+            nameTv = v.findViewById(R.id.chat_item_sender_name);
+            msgTv = v.findViewById(R.id.chat_item_last_message);
+            timeTv = v.findViewById(R.id.chat_item_timestamp);
         }
-    }
-
-    // Helper method to update data
-    public void updateChatList(List<ChatItem> newChatItems) {
-        this.chatItems.clear();
-        this.chatItems.addAll(newChatItems);
-        notifyDataSetChanged();
     }
 }

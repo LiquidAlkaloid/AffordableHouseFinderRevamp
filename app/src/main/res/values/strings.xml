@@ -56,8 +56,6 @@
     <string name="already_listed_button">ALREADY LISTED</string>
     <string name="remove_listing_button">REMOVE LISTING</string>
 
-
-
     <string name="property_image_description">Image of the property</string>
     <string name="back_button">Back</string>
     <string name="share_button">Share</string>
@@ -97,7 +95,15 @@
         We may collect and receive information from you in the following situations:&lt;br&gt;&lt;br&gt;
         * When you register for an account with us (“Account”).&lt;br&gt;
         * When you choose to connect your Account with an external third-party service or application, such as Facebook.&lt;br&gt;
-        * When you use the features and functions available on our  app
+        * When you use the features and functions available on our app
     </string>
+
+    <string name="logo">Logo</string>
+    <string name="chat">Chat</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="more_options">More Options</string>
+
+    <string name="profile_picture">Profile Picture</string>
+    <string name="read_status">Read Status</string>
 
 </resources>
