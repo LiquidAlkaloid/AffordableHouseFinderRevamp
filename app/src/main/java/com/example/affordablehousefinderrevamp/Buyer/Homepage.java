@@ -39,7 +39,7 @@ public class Homepage extends AppCompatActivity {
                         return true;
                     } else if (itemId == R.id.navigation_chat) {
                         // Navigate to the new ChatListActivity
-                        Intent chatListIntent = new Intent(Homepage.this, ChatListActivity.class);
+                        Intent chatListIntent = new Intent(Homepage.this, ChatBuyerActivity.class);
                         startActivity(chatListIntent);
                         return true;
                     } else if (itemId == R.id.navigation_sell) { // Or navigation_buy
