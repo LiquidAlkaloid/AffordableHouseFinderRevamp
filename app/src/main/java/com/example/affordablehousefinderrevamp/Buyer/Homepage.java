@@ -12,7 +12,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.affordablehousefinderrevamp.ChatListActivity;
 import com.example.affordablehousefinderrevamp.R;
 import com.example.affordablehousefinderrevamp.Seller.UploadActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
