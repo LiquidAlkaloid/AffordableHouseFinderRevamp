@@ -62,6 +62,7 @@ public class SellerProfile extends AppCompatActivity {
         viewPolicyRow = findViewById(R.id.privacy_policy_row);
         logoutRow = findViewById(R.id.logout_row);
         showAllListingsButton = findViewById(R.id.show_all_button);
+        ImageView notificationIcon = findViewById(R.id.notification_icon);
 
 
         houseImageViewList = new ArrayList<>();
@@ -85,7 +86,15 @@ public class SellerProfile extends AppCompatActivity {
             });
         }
 
-
+        notificationIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create an Intent to go to the Notification Center Activity
+                // Replace NotificationCenterActivity.class with the actual class name of your Notification Activity
+                Intent intent = new Intent(SellerProfile.this, NotificationCenterActivity.class);
+                startActivity(intent);
+            }
+        });
 
 
         imagePickerLauncher = registerForActivityResult(

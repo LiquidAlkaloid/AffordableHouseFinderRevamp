@@ -136,6 +136,10 @@
     <color name="red">#FFFF0000</color>
     <color name="blue">#FF0000FF</color>
 
+    <?xml version="1.0" encoding="utf-8"?>
+    <resources>
+        <color name="pink_header">#FFC0CB</color> <color name="pink_item">#F5D0C9</color> <color name="grey_divider">#E0E0E0</color> </resources>
+
 
 
     </resources>
