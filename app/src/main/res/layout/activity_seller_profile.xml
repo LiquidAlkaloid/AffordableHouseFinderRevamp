@@ -6,6 +6,8 @@
     android:background="#FFF0F5"
     tools:context=".Seller.SellerProfile">
 
+
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/top_user_info_section"
         android:layout_width="0dp"
@@ -237,26 +239,35 @@
 
             <RelativeLayout
                 android:id="@+id/privacy_policy_row"
-                style="@style/ProfileOptionRow">
+                style="@style/ProfileOptionRow"
+                android:layout_width="wrap_content">
+
                 <ImageView
                     android:id="@+id/privacy_policy_icon"
                     style="@style/ProfileOptionIcon"
-                    android:src="@drawable/ic_privacy_policy"
-                    android:contentDescription="Privacy Policy Icon"/>
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Privacy Policy Icon"
+                    android:src="@drawable/ic_privacy_policy" />
+
                 <TextView
                     android:id="@+id/privacy_policy_text"
                     style="@style/ProfileOptionText"
                     android:layout_toEndOf="@id/privacy_policy_icon"
-                    android:text="Privacy &amp; Policy"/>
+                    android:text="Privacy &amp; Policy" />
+
                 <TextView
+                    android:id="@+id/textView2"
                     style="@style/ProfileOptionSubText"
                     android:layout_below="@id/privacy_policy_text"
                     android:layout_alignStart="@id/privacy_policy_text"
-                    android:text="Policy"/>
-                <ImageView
+                    android:text="Policy" />
+
+                <ImageButton
+                    android:id="@+id/privacy_policy_arrow1"
                     style="@style/ProfileOptionArrow"
-                    android:src="@drawable/ic_forward_project"
-                    android:contentDescription="Arrow Icon"/>
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Arrow Icon"
+                    android:src="@drawable/ic_forward_project1" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -273,10 +284,11 @@
                     style="@style/ProfileOptionText"
                     android:layout_toEndOf="@id/logout_icon"
                     android:text="Logout"/>
-                <ImageView
-                    style="@style/ProfileOptionArrow"
+                <ImageButton
+                    android:id="@+id/logout_action_button" style="@style/ProfileOptionArrow"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_forward_project"
-                    android:contentDescription="Arrow Icon"/>
+                    android:contentDescription="Logout Action"/>
             </RelativeLayout>
 
         </LinearLayout>
