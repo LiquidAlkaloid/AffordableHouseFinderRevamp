@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:cardCornerRadius="15dp"
     app:cardElevation="4dp"
-    android:layout_marginBottom="16dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
     app:cardBackgroundColor="@color/white">
 
     <LinearLayout
@@ -17,35 +21,37 @@
         <ImageView
             android:id="@+id/house_image"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="160dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/placeholder"
+            tools:srcCompat="@drawable/placeholder_image"
             android:background="@color/placeholder_image_bg"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="12dp"
             android:contentDescription="@string/house_image_description2" />
 
         <TextView
             android:id="@+id/house_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Modern House Name"
+            tools:text="Spacious Modern Villa"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="@color/black"/>
+            android:textColor="@color/black"
+            android:layout_marginBottom="4dp"/>
 
         <TextView
             android:id="@+id/house_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="P 00,000,000"
+            tools:text="PHP 25,000,000"
             android:textSize="16sp"
-            android:textColor="@color/black"/>
+            android:textColor="@color/text_primary_color"
+            android:layout_marginBottom="4dp"/>
 
         <TextView
             android:id="@+id/house_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Location Details"
+            tools:text="Prime Location, Baguio City"
             android:textSize="14sp"
             android:textColor="@color/grey_text"
             android:layout_marginBottom="8dp"/>
@@ -54,13 +60,14 @@
             android:id="@+id/house_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="STATUS : UNKNOWN"
+            tools:text="STATUS: AVAILABLE"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:textColor="@color/status_pending_color"
+            android:textColor="@color/status_available_color"
             android:layout_marginBottom="12dp"/>
 
         <LinearLayout
+            android:id="@+id/seller_action_buttons_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -84,7 +91,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/already_listed_button"
+                android:text="@string/change_status_button"
                 app:backgroundTint="@color/chargit_blue_button"
                 android:textColor="@color/white"
                 android:textSize="12sp"

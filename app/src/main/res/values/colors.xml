@@ -137,5 +137,13 @@
     <color name="blue">#FF0000FF</color>
     <color name="grey_light">#807F7F</color>
 
+    <color name="status_taken_color">#F44336</color>
+    <color name="status_reserved_color">#FF9800</color>
+    <color name="status_unknown_color">#757575</color>
+    <color name="status_in_repair_color">#2196F3</color>
+
+    <color name="timestamp_color_sent">#B0BEC5</color>
+
+
 
 </resources>

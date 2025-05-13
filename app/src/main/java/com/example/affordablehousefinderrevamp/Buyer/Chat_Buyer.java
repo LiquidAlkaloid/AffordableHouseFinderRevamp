@@ -1,166 +1,274 @@
 package com.example.affordablehousefinderrevamp.Buyer;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
+
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.MenuItem;
-import android.widget.Toast;
-
-import com.example.affordablehousefinderrevamp.ChatItem; // Assuming ChatItem model
+// Assuming MessageAdapter is for displaying messages in this individual chat
+// import com.example.affordablehousefinderrevamp.Adapter.MessageAdapter;
+import com.example.affordablehousefinderrevamp.Model.Message; // You'll need a Message model
+import com.example.affordablehousefinderrevamp.Model.Property;
 import com.example.affordablehousefinderrevamp.R;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.example.affordablehousefinderrevamp.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Chat_Buyer extends AppCompatActivity {
 
-    private RecyclerView recyclerViewChats;
-    private ChatBuyerAdapter chatBuyerAdapter; // Adapter for chat list
-    private List<ChatItem> chatList;
-    private BottomNavigationView bottomNavigationView;
-    private Toolbar toolbar;
+    private static final String TAG = "Chat_Buyer_Individual";
 
-    private DatabaseReference databaseReferenceChats;
-    private FirebaseUser currentUser;
+    // Header UI (from activity_chat_buyer.xml)
+    private TextView tvSellerName; // ID in XML: tv_name
+    private TextView tvSellerEmail; // ID in XML: tv_email
+    private ImageView icBack, icWarning, icMenu;
+
+    // Property Card UI (from activity_chat_buyer.xml)
+    private ImageView imgHouse;
+    private TextView tvPropertyTitle, tvPropertyPrice, tvPropertyLocation;
+    private Button btnViewPropertyDetails; // ID in XML: btn_view
+
+    // Chat messages RecyclerView (You'll need to add this to activity_chat_buyer.xml)
+    // private RecyclerView recyclerViewMessages;
+    // private MessageAdapter messageAdapter; // Adapter for messages
+    // private List<Message> messageList;
+
+    // Chat input UI (from activity_chat_buyer.xml)
+    private EditText etMessage;
+    private ImageView icGallery, icAttach; // Assuming send button is part of etMessage or implicit
+
+    private FirebaseFirestore db;
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentBuyer;
+
+    private String sellerId;
+    private String propertyId;
+    private String propertyName;
+    private String chatId; // Will be generated or fetched
+
+    private ListenerRegistration chatSessionListener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // This activity is for the LIST of chats for the buyer.
-        setContentView(R.layout.activity_chat_list_buyer);
+        setContentView(R.layout.activity_chat_buyer); // This is the individual chat screen for buyer
 
-        // Corrected Toolbar ID to match activity_chat_list_buyer.xml
-        toolbar = findViewById(R.id.toolbar_chat_buyer);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("My Chats");
-            // getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Optional
-        }
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+        currentBuyer = mAuth.getCurrentUser();
 
-        // Corrected RecyclerView ID to match activity_chat_list_buyer.xml
-        recyclerViewChats = findViewById(R.id.rv_chat_list_buyer);
-        recyclerViewChats.setLayoutManager(new LinearLayoutManager(this));
+        // Initialize Header UI
+        tvSellerName = findViewById(R.id.tv_name);
+        tvSellerEmail = findViewById(R.id.tv_email);
+        icBack = findViewById(R.id.ic_back);
+        // icWarning = findViewById(R.id.ic_warning); // If needed
+        // icMenu = findViewById(R.id.ic_menu); // If needed
 
-        chatList = new ArrayList<>();
-        chatBuyerAdapter = new ChatBuyerAdapter(this, chatList, chatItem -> {
-            // Handle chat item click: Open individual chat screen (ChatBuyerActivity)
-            Intent intent = new Intent(Chat_Buyer.this, ChatBuyerActivity.class);
-            intent.putExtra("receiverId", chatItem.getReceiverId());
-            intent.putExtra("chatId", chatItem.getChatId());
-            intent.putExtra("receiverName", chatItem.getSenderName());
-            // intent.putExtra("propertyId", chatItem.getPropertyId()); // If chats are linked to properties
-            startActivity(intent);
-        });
-        recyclerViewChats.setAdapter(chatBuyerAdapter);
+        // Initialize Property Card UI
+        imgHouse = findViewById(R.id.img_house);
+        tvPropertyTitle = findViewById(R.id.tv_title);
+        tvPropertyPrice = findViewById(R.id.tv_price);
+        tvPropertyLocation = findViewById(R.id.tv_location);
+        btnViewPropertyDetails = findViewById(R.id.btn_view);
 
-        currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            databaseReferenceChats = FirebaseDatabase.getInstance().getReference("user_chats").child(currentUser.getUid());
-            loadChatList();
-        } else {
-            Toast.makeText(this, "Please log in to view chats.", Toast.LENGTH_SHORT).show();
-            // Consider finishing the activity or redirecting to login
-            // finish();
-        }
+        // Initialize Chat Input UI
+        etMessage = findViewById(R.id.et_message);
+        // icGallery = findViewById(R.id.ic_gallery); // If needed
+        // icAttach = findViewById(R.id.ic_attach); // If needed
+        // Add a send button if not present and wire it up
 
-        // ID for BottomNavigationView in activity_chat_list_buyer.xml is correct
-        bottomNavigationView = findViewById(R.id.bottom_navigation_buyer);
-        if (bottomNavigationView != null) {
-            bottomNavigationView.setSelectedItemId(R.id.navigation_chat); // Set Chat as selected
 
-            bottomNavigationView.setOnItemSelectedListener(item -> {
-                Intent intent = null;
-                int itemId = item.getItemId();
+        // Get data from Intent (passed from PropertyDetail)
+        Intent intent = getIntent();
+        sellerId = intent.getStringExtra("sellerId");
+        propertyId = intent.getStringExtra("propertyId");
+        propertyName = intent.getStringExtra("propertyName");
 
-                if (itemId == R.id.navigation_home) {
-                    intent = new Intent(Chat_Buyer.this, Homepage.class);
-                } else if (itemId == R.id.navigation_chat) {
-                    return true; // Already here
-                } else if (itemId == R.id.navigation_profile) {
-                    intent = new Intent(Chat_Buyer.this, BuyerProfile.class);
-                }
-
-                if (intent != null) {
-                    startActivity(intent);
-                    overridePendingTransition(0,0); // No animation
-                    finish(); // Finish current activity to prevent stack buildup
-                    return true;
-                }
-                return false;
-            });
-        }
-    }
-
-    private void loadChatList() {
-        // Placeholder: Actual chat list loading from Firebase would be more complex.
-        // TODO: Implement actual Firebase chat list loading logic.
-        // This might involve querying a 'chats' node where each entry has participants.
-        // For now, using placeholder or a simple listener.
-
-        if (databaseReferenceChats == null) { // If not logged in or DB ref not set
-            if (chatList.isEmpty()) { // Only add sample if list is empty
-                // Ensure ChatItem constructor matches your ChatItem.java model
-                chatList.add(new ChatItem("chat1_placeholder", "seller123", "John Seller (Sample)", "Okay, see you then!", "10:30 AM", 0, true, "user_buyer_id_sample", R.drawable.ic_person_placeholder));
-                chatList.add(new ChatItem("chat2_placeholder", "seller456", "Jane Realtor (Sample)", "Is the price negotiable?", "Yesterday", 2, false, "user_buyer_id_sample", R.drawable.ic_person_placeholder));
-                chatBuyerAdapter.notifyDataSetChanged();
-                if (chatList.isEmpty()) { // Should not be empty now if samples added
-                    Toast.makeText(this, "No chats yet.", Toast.LENGTH_SHORT).show();
-                }
-            }
+        if (currentBuyer == null) {
+            Toast.makeText(this, "You need to be logged in.", Toast.LENGTH_SHORT).show();
+            finish();
             return;
         }
 
-        // Example of listening to a node that contains chat sessions for the user
-        // This assumes a structure like /user_chats/{currentUserId}/{chatId}
-        databaseReferenceChats.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                chatList.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    ChatItem chatItem = snapshot.getValue(ChatItem.class);
-                    if (chatItem != null) {
-                        chatItem.setChatId(snapshot.getKey()); // Set chat ID from Firebase key
-                        // You might need to fetch the other user's name/profile pic based on receiverId
-                        // For now, senderName from ChatItem is used.
-                        chatList.add(chatItem);
+        if (sellerId == null || propertyId == null) {
+            Toast.makeText(this, "Error: Seller or Property information missing.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
+        // Generate or get Chat ID (buyerId_sellerId_propertyId for simplicity, or query)
+        chatId = generateChatId(currentBuyer.getUid(), sellerId, propertyId);
+
+        loadSellerDetails();
+        loadPropertyDetailsForCard();
+        setupChatRecyclerView(); // You need to implement this and MessageAdapter
+        listenToChatSessionStatus(); // For offer decline popups
+
+        if (icBack != null) {
+            icBack.setOnClickListener(v -> onBackPressed());
+        }
+
+        if (btnViewPropertyDetails != null) {
+            btnViewPropertyDetails.setOnClickListener(v -> {
+                Intent detailIntent = new Intent(Chat_Buyer.this, PropertyDetail.class);
+                detailIntent.putExtra("propertyId", propertyId);
+                startActivity(detailIntent);
+            });
+        }
+
+        // Placeholder for send message button
+        // Button btnSend = findViewById(R.id.btn_send_message); // Add this to your XML
+        // if(btnSend != null) {
+        //    btnSend.setOnClickListener(v -> sendMessage());
+        // }
+    }
+
+    private String generateChatId(String userId1, String userId2, String propId) {
+        // Ensure consistent order for combined IDs
+        if (userId1.compareTo(userId2) > 0) {
+            String temp = userId1;
+            userId1 = userId2;
+            userId2 = temp;
+        }
+        return userId1 + "_" + userId2 + "_" + propId;
+    }
+
+
+    private void loadSellerDetails() {
+        db.collection("users").document(sellerId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        User seller = documentSnapshot.toObject(User.class);
+                        if (seller != null) {
+                            if (tvSellerName != null) tvSellerName.setText(seller.getName());
+                            if (tvSellerEmail != null) tvSellerEmail.setText(seller.getEmail());
+                            // Load seller profile image if available
+                        }
+                    } else {
+                        Log.w(TAG, "Seller document does not exist for ID: " + sellerId);
+                        if (tvSellerName != null) tvSellerName.setText("Seller Unavailable");
                     }
-                }
-                chatBuyerAdapter.notifyDataSetChanged();
-                if (chatList.isEmpty()) {
-                    Toast.makeText(Chat_Buyer.this, "No active chats.", Toast.LENGTH_SHORT).show();
-                }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error fetching seller details", e);
+                    if (tvSellerName != null) tvSellerName.setText("Error Loading Seller");
+                });
+    }
+
+    private void loadPropertyDetailsForCard() {
+        if (propertyId == null) return;
+        db.collection("properties").document(propertyId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Property property = documentSnapshot.toObject(Property.class);
+                        if (property != null) {
+                            if (tvPropertyTitle != null) tvPropertyTitle.setText(property.getTitle());
+                            if (tvPropertyPrice != null) tvPropertyPrice.setText(property.getPrice());
+                            if (tvPropertyLocation != null) tvPropertyLocation.setText(property.getLocation());
+                            // Load property image into imgHouse using Glide
+                            // if (imgHouse != null && property.getImageUrl() != null) {
+                            //    Glide.with(this).load(property.getImageUrl()).into(imgHouse);
+                            // }
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Error fetching property details for card", e));
+    }
+
+
+    private void setupChatRecyclerView() {
+        // recyclerViewMessages = findViewById(R.id.your_chat_messages_recyclerview_id); // Add to XML
+        // messageList = new ArrayList<>();
+        // messageAdapter = new MessageAdapter(this, messageList, currentBuyer.getUid());
+        // LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        // layoutManager.setStackFromEnd(true); // To show newest messages at the bottom
+        // recyclerViewMessages.setLayoutManager(layoutManager);
+        // recyclerViewMessages.setAdapter(messageAdapter);
+        // loadMessages(); // Implement this method
+        Log.d(TAG, "Chat RecyclerView setup placeholder. Implement MessageAdapter and add RecyclerView to XML.");
+    }
+
+    private void listenToChatSessionStatus() {
+        // Listen to the chat session document in the *seller's* subcollection,
+        // as the seller is the one who accepts/declines.
+        // The document ID (chatId) should be the same for both buyer and seller perspective.
+        DocumentReference chatSessionRef = db.collection("users").document(sellerId)
+                .collection("chat_sessions").document(chatId);
+
+        chatSessionListener = chatSessionRef.addSnapshotListener((snapshot, e) -> {
+            if (e != null) {
+                Log.w(TAG, "Chat session listen failed.", e);
+                return;
             }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(Chat_Buyer.this, "Failed to load chats: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            if (snapshot != null && snapshot.exists()) {
+                Boolean conversationClosed = snapshot.getBoolean("conversationClosed");
+                String offerStatus = snapshot.getString("offerStatus");
+
+                if (Boolean.TRUE.equals(conversationClosed) && "declined".equals(offerStatus)) {
+                    showConversationClosedDialog("The seller has declined the offer and this conversation is now closed.");
+                    if(etMessage != null) etMessage.setEnabled(false); // Disable input
+                    // Disable send button as well
+                }
+                // Handle "accepted" status if needed (e.g., change UI, enable further actions)
             }
         });
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        if (item.getItemId() == android.R.id.home) {
-            // This is for the Up button if setDisplayHomeAsUpEnabled(true) is called
-            onBackPressed();
-            return true;
+
+    private void showConversationClosedDialog(String message) {
+        if (!isFinishing() && !isDestroyed()) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Conversation Update")
+                    .setMessage(message)
+                    .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                    .setCancelable(false) // User must acknowledge
+                    .show();
         }
-        return super.onOptionsItemSelected(item);
+    }
+
+    // Placeholder for sendMessage
+    // private void sendMessage() {
+    //    String messageText = etMessage.getText().toString().trim();
+    //    if (TextUtils.isEmpty(messageText)) return;
+    //    // Create Message object
+    //    // Add to Firestore: /chats/{chatId}/messages/
+    //    // Update last message in both buyer's and seller's chat_sessions document
+    //    etMessage.setText("");
+    // }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (chatSessionListener != null) {
+            chatSessionListener.remove();
+        }
     }
 }

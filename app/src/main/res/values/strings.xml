@@ -195,5 +195,6 @@
     <string name="title_listings">Listings</string>
     <string name="title_bookmarks">Bookmarks</string>
     <string name="remove_image_button_description">Remove selected image</string>
+    <string name="change_status_button">Change Status</string>
 
 </resources>

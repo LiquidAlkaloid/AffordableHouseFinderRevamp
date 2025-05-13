@@ -3,37 +3,41 @@ package com.example.affordablehousefinderrevamp.Model;
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.ServerTimestamp;
-import java.util.Date; // Import Date
+import java.util.Date;
 import java.util.List;
 
 public class Property {
-    @DocumentId // Firestore will automatically populate this with the document ID
+    @DocumentId
     private String propertyId;
 
     private String title;
     private String location;
     private String price;
     private String description;
-    private String imageUrl; // Main image URL (first from the list)
-    private List<String> imageUrls; // List of all image URI strings
+    private String imageUrl;
+    private List<String> imageUrls;
     private String sellerId;
     private String propertyType;
     private int bedrooms;
     private int bathrooms;
     private String area;
+    private String status; // Added status field (e.g., "Available", "Taken", "Reserved", "In Repair")
 
-    @ServerTimestamp // Firestore will automatically populate this on the server
+    @ServerTimestamp
     private Date timestamp;
 
-    private boolean isBookmarked; // UI state, not typically stored directly in the main property document for all users
+    @Exclude
+    private boolean isBookmarked;
 
-    // No-argument constructor required for Firestore
-    public Property() {}
+    public Property() {
+        // Firestore requires a no-argument constructor
+        this.status = "Available"; // Default status
+    }
 
-    // Constructor without propertyId and timestamp as they can be auto-generated or set separately
+    // Constructor for creating a new property
     public Property(String title, String location, String price, String description,
                     String imageUrl, List<String> imageUrls, String sellerId, String propertyType,
-                    int bedrooms, int bathrooms, String area) {
+                    int bedrooms, int bathrooms, String area, String status) {
         this.title = title;
         this.location = location;
         this.price = price;
@@ -45,6 +49,7 @@ public class Property {
         this.bedrooms = bedrooms;
         this.bathrooms = bathrooms;
         this.area = area;
+        this.status = (status != null && !status.isEmpty()) ? status : "Available"; // Default if null/empty
         // Timestamp is set by @ServerTimestamp
     }
 
@@ -62,9 +67,10 @@ public class Property {
     public int getBedrooms() { return bedrooms; }
     public int getBathrooms() { return bathrooms; }
     public String getArea() { return area; }
-    public Date getTimestamp() { return timestamp; } // Return Date
+    public String getStatus() { return status; } // Getter for status
+    public Date getTimestamp() { return timestamp; }
 
-    @Exclude // Exclude from Firestore serialization if it's purely a UI concern
+    @Exclude
     public boolean isBookmarked() { return isBookmarked; }
 
     // Setters
@@ -80,6 +86,7 @@ public class Property {
     public void setBedrooms(int bedrooms) { this.bedrooms = bedrooms; }
     public void setBathrooms(int bathrooms) { this.bathrooms = bathrooms; }
     public void setArea(String area) { this.area = area; }
-    public void setTimestamp(Date timestamp) { this.timestamp = timestamp; } // Accept Date
+    public void setStatus(String status) { this.status = status; } // Setter for status
+    public void setTimestamp(Date timestamp) { this.timestamp = timestamp; }
     public void setBookmarked(boolean bookmarked) { isBookmarked = bookmarked; }
 }

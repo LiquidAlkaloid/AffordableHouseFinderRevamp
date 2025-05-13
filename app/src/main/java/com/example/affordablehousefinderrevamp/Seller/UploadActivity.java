@@ -21,18 +21,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.affordablehousefinderrevamp.Model.Property;
+import com.example.affordablehousefinderrevamp.Model.Property; // Ensure this is the correct path
 import com.example.affordablehousefinderrevamp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference; // Firestore
-import com.google.firebase.firestore.DocumentReference;  // Firestore
-import com.google.firebase.firestore.FirebaseFirestore;  // Firestore
-import com.google.firebase.firestore.SetOptions; // For merging data
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.Date; // For timestamp
 import java.util.List;
+// Date import is not strictly needed here if we rely on @ServerTimestamp and don't manually set it
+// import java.util.Date;
 
 public class UploadActivity extends AppCompatActivity {
 
@@ -40,13 +40,14 @@ public class UploadActivity extends AppCompatActivity {
 
     private EditText editTextTitle, editTextLocation, editTextPrice, editTextDescription,
             editTextPropertyType, editTextBedrooms, editTextBathrooms, editTextArea;
+    // private Spinner spinnerStatus; // Optional: For selecting status
     private Button buttonSelectImages, buttonUploadProperty;
     private RecyclerView recyclerViewSelectedImages;
     private Toolbar toolbar;
 
     private FirebaseAuth firebaseAuth;
-    private FirebaseFirestore db; // Firestore instance
-    private CollectionReference propertiesCollection; // Firestore collection reference
+    private FirebaseFirestore db;
+    private CollectionReference propertiesCollection;
 
     private ArrayList<Uri> imageUris;
     private ArrayList<String> imageUriStrings;
@@ -76,6 +77,7 @@ public class UploadActivity extends AppCompatActivity {
         editTextBedrooms = findViewById(R.id.editTextBedrooms);
         editTextBathrooms = findViewById(R.id.editTextBathrooms);
         editTextArea = findViewById(R.id.editTextArea);
+        // spinnerStatus = findViewById(R.id.spinnerStatus); // Initialize if you add a spinner for status
         buttonSelectImages = findViewById(R.id.buttonSelectImages);
         buttonUploadProperty = findViewById(R.id.buttonUpload);
         recyclerViewSelectedImages = findViewById(R.id.recyclerViewSelectedImages);
@@ -88,8 +90,8 @@ public class UploadActivity extends AppCompatActivity {
         }
 
         firebaseAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance(); // Initialize Firestore
-        propertiesCollection = db.collection("properties"); // Reference to "properties" collection
+        db = FirebaseFirestore.getInstance();
+        propertiesCollection = db.collection("properties");
 
         imageUris = new ArrayList<>();
         imageUriStrings = new ArrayList<>();
@@ -108,6 +110,13 @@ public class UploadActivity extends AppCompatActivity {
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
+
+        // Optional: Setup Spinner for status
+        // ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+        //        R.array.property_statuses_array, android.R.layout.simple_spinner_item);
+        // adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // if (spinnerStatus != null) spinnerStatus.setAdapter(adapter);
+
 
         if (getIntent().hasExtra("propertyIdToEdit")) {
             editingPropertyId = getIntent().getStringExtra("propertyIdToEdit");
@@ -134,7 +143,6 @@ public class UploadActivity extends AppCompatActivity {
                     dismissProgressDialog();
                     if (documentSnapshot.exists()) {
                         propertyToEdit = documentSnapshot.toObject(Property.class);
-                        // propertyToEdit.setPropertyId(documentSnapshot.getId()); // @DocumentId handles this
                         if (propertyToEdit != null) {
                             populateFieldsForEditing();
                         } else {
@@ -155,7 +163,7 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     private void populateFieldsForEditing() {
-        // (Same as before, but ensure propertyToEdit.getTimestamp() is handled if you need to display it)
+        if (propertyToEdit == null) return;
         editTextTitle.setText(propertyToEdit.getTitle());
         editTextLocation.setText(propertyToEdit.getLocation());
         editTextPrice.setText(propertyToEdit.getPrice());
@@ -164,6 +172,16 @@ public class UploadActivity extends AppCompatActivity {
         editTextBedrooms.setText(String.valueOf(propertyToEdit.getBedrooms()));
         editTextBathrooms.setText(String.valueOf(propertyToEdit.getBathrooms()));
         editTextArea.setText(propertyToEdit.getArea());
+
+        // Optional: Set spinner selection if you have one for status
+        // if (spinnerStatus != null && propertyToEdit.getStatus() != null) {
+        //     ArrayAdapter<CharSequence> adapter = (ArrayAdapter<CharSequence>) spinnerStatus.getAdapter();
+        //     if (adapter != null) {
+        //         int position = adapter.getPosition(propertyToEdit.getStatus());
+        //         spinnerStatus.setSelection(position);
+        //     }
+        // }
+
 
         imageUris.clear();
         imageUriStrings.clear();
@@ -182,14 +200,14 @@ public class UploadActivity extends AppCompatActivity {
         }
     }
 
-    private void openImagePicker() { // Same as before
+    private void openImagePicker() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         activityResultLauncher.launch(Intent.createChooser(intent, getString(R.string.select_pictures)));
     }
 
-    ActivityResultLauncher<Intent> activityResultLauncher = // Same as before
+    ActivityResultLauncher<Intent> activityResultLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
                     Intent data = result.getData();
@@ -220,7 +238,7 @@ public class UploadActivity extends AppCompatActivity {
                 }
             });
 
-    private void validateAndSaveProperty() { // Mostly same, Firebase save logic changes
+    private void validateAndSaveProperty() {
         String title = editTextTitle.getText().toString().trim();
         String location = editTextLocation.getText().toString().trim();
         String price = editTextPrice.getText().toString().trim();
@@ -229,6 +247,7 @@ public class UploadActivity extends AppCompatActivity {
         String bedroomsStr = editTextBedrooms.getText().toString().trim();
         String bathroomsStr = editTextBathrooms.getText().toString().trim();
         String area = editTextArea.getText().toString().trim();
+        // String status = (spinnerStatus != null) ? spinnerStatus.getSelectedItem().toString() : "Available"; // Get status if using spinner
 
         if (TextUtils.isEmpty(title) || TextUtils.isEmpty(location) || TextUtils.isEmpty(price) ||
                 TextUtils.isEmpty(description) || TextUtils.isEmpty(propertyType) || TextUtils.isEmpty(bedroomsStr) ||
@@ -261,40 +280,35 @@ public class UploadActivity extends AppCompatActivity {
 
         String mainImageUrl = imageUriStrings.isEmpty() ? null : imageUriStrings.get(0);
 
-        // Create Property object (timestamp will be set by @ServerTimestamp)
-        Property property = new Property(title, location, price, description, mainImageUrl,
-                new ArrayList<>(imageUriStrings), sellerId, propertyType, bedrooms, bathrooms, area);
+        String currentStatus;
+        if (editingPropertyId != null && propertyToEdit != null && propertyToEdit.getStatus() != null) {
+            currentStatus = propertyToEdit.getStatus(); // Preserve existing status on edit
+        } else {
+            currentStatus = "Available"; // Default for new properties
+        }
+        // If you add a spinner for status:
+        // currentStatus = spinnerStatus.getSelectedItem().toString();
 
-        // If editing, set the existing propertyId to ensure we update the correct document.
-        // The @DocumentId annotation in Property.java handles reading it, but for saving an update,
-        // we need to specify which document to update.
-        // If creating new, Firestore will generate an ID if we use .add(), or we can generate one.
+
+        // Create Property object using the constructor that includes status
+        Property property = new Property(title, location, price, description, mainImageUrl,
+                new ArrayList<>(imageUriStrings), sellerId, propertyType, bedrooms, bathrooms, area, currentStatus);
 
         DocumentReference propertyDocRef;
         if (editingPropertyId != null) {
             propertyDocRef = propertiesCollection.document(editingPropertyId);
-            // For an update, we might want to explicitly set the timestamp to null
-            // if we want @ServerTimestamp to re-evaluate. Or, keep the existing one if not changing.
-            // If Property model's timestamp is Date, and it's null, @ServerTimestamp will fill it.
-            // If it's not null (e.g. from propertyToEdit), it will be overwritten by server if field exists.
-            // For simplicity, @ServerTimestamp will handle it if the field is written.
-            // If you want to preserve the original creation timestamp on edit, ensure it's part of the 'property' object
-            // and not set to null.
             if (propertyToEdit != null && propertyToEdit.getTimestamp() != null) {
                 property.setTimestamp(propertyToEdit.getTimestamp()); // Preserve original creation timestamp
             } else {
-                property.setTimestamp(null); // Let server update modification time if that's the logic, or create if new
+                property.setTimestamp(null); // Let server update modification time if that's the logic
             }
-
         } else {
-            propertyDocRef = propertiesCollection.document(); // Generate new ID for new property
-            property.setPropertyId(propertyDocRef.getId()); // Store the auto-generated ID in our object
-            property.setTimestamp(null); // Ensure @ServerTimestamp populates it on creation
+            propertyDocRef = propertiesCollection.document();
+            property.setPropertyId(propertyDocRef.getId());
+            property.setTimestamp(null); // @ServerTimestamp will populate on creation
         }
 
-        // Use set() to save the object. If editingPropertyId is set, it overwrites.
-        // If propertyDocRef was from .document() without an ID, this creates a new doc with that ID.
-        propertyDocRef.set(property)
+        propertyDocRef.set(property) // Use set() which overwrites or creates
                 .addOnSuccessListener(aVoid -> {
                     dismissProgressDialog();
                     Toast.makeText(UploadActivity.this,
@@ -310,8 +324,7 @@ public class UploadActivity extends AppCompatActivity {
                 });
     }
 
-
-    private void clearForm() { // Same as before
+    private void clearForm() {
         editTextTitle.setText("");
         editTextLocation.setText("");
         editTextPrice.setText("");
@@ -320,6 +333,7 @@ public class UploadActivity extends AppCompatActivity {
         editTextBedrooms.setText("");
         editTextBathrooms.setText("");
         editTextArea.setText("");
+        // if (spinnerStatus != null) spinnerStatus.setSelection(0); // Reset spinner
         imageUris.clear();
         imageUriStrings.clear();
         if (galleryImageAdapter != null) {
@@ -327,14 +341,14 @@ public class UploadActivity extends AppCompatActivity {
         }
     }
 
-    private void dismissProgressDialog() { // Same as before
+    private void dismissProgressDialog() {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) { // Same as before
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
             return true;
