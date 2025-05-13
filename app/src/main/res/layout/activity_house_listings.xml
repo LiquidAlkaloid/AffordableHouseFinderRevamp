@@ -33,21 +33,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp"/>
 
-    <Button
-        android:id="@+id/button_add_new_listing_main"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/add_listing_button_text"
-        app:backgroundTint="@color/button_add_listing_tint"
-        android:textColor="@color/white"
-        android:layout_marginTop="16dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
     <ScrollView
         android:id="@+id/scroll_view_listings"
         android:layout_width="0dp"
@@ -66,5 +51,33 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"/>
     </ScrollView>
+
+    <Button
+        android:id="@+id/button_add_new_listing_main"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/add_listing_button_text"
+        app:backgroundTint="@color/button_add_listing_tint"
+        android:textColor="@color/white"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation_seller_listings"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation_seller_listings"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="?android:attr/windowBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:menu="@menu/bottom_navigation_menu_seller"
+        app:itemIconTint="@menu/bottom_nav_item_selector"
+        app:itemTextColor="@menu/bottom_nav_item_selector" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
