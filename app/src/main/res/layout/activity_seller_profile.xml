@@ -196,7 +196,7 @@
                     android:layout_height="wrap_content"
                     android:text="Show All"
                     android:textSize="16sp"
-                    android:textColor="@color/colorPrimary"
+                    android:textColor="@color/black"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:padding="8dp"
