@@ -106,4 +106,94 @@
     <string name="profile_picture">Profile Picture</string>
     <string name="read_status">Read Status</string>
 
+    <string name="placeholder_title">Modern House Name</string>
+    <string name="placeholder_price">PHP 00,000,000</string>
+    <string name="placeholder_location">Location Details</string>
+    <string name="placeholder_description_long">This is a detailed description of the property, highlighting its key features, amenities, and any other relevant information that a potential buyer or renter might find useful. It can span multiple lines.</string>
+
+
+    <string name="my_chats_title">My Chats</string>
+    <string name="login_to_view_chats">Please log in to view chats.</string>
+    <string name="no_active_chats">No active chats.</string>
+    <string name="failed_to_load_chats">Failed to load chats.</string>
+    <string name="receiver_not_specified">Receiver not specified.</string>
+    <string name="cannot_send_message">Cannot send message.</string>
+    <string name="failed_to_create_message_id">Failed to create message ID.</string>
+    <string name="failed_to_send_message">Failed to send message.</string>
+    <string name="type_here_hint">Type Here...</string>
+    <string name="gallery_icon_desc">Open gallery</string>
+    <string name="attach_icon_desc">Attach file</string>
+    <string name="seller_info_unavailable">Seller information not available for chat.</string>
+    <string name="cannot_chat_with_self">You cannot chat with yourself.</string>
+    <string name="login_to_chat">Please log in to chat with the seller.</string>
+
+
+    <string name="my_bookmarks_title">My Bookmarks</string>
+    <string name="no_bookmarks_yet">No bookmarks yet.</string>
+    <string name="failed_to_load_bookmarks">Failed to load bookmarks.</string>
+    <string name="removed_from_bookmarks">Removed from bookmarks</string>
+    <string name="failed_to_remove_bookmark">Failed to remove bookmark</string>
+    <string name="added_to_bookmarks">Added to bookmarks</string>
+    <string name="failed_to_add_bookmark">Failed to add bookmark</string>
+    <string name="login_to_bookmark">Please log in to bookmark properties.</string>
+    <string name="cannot_bookmark_now">Cannot bookmark at this moment.</string>
+
+    <string name="app_logo_description">Application Logo</string>
+    <string name="new_homes_nearby_title">New Homes Nearby</string>
+
+    <string name="feedback_button_description">Send feedback about this property</string>
+    <string name="see_all">See All</string>
+    <string name="chat_realtor">Chat Realtor</string>
+    <string name="buy_now">Buy Now</string>
+    <string name="property_details_title">Property Details</string>
+    <string name="my_property_details_title">My Property Details</string>
+    <string name="view_insights_button">View Insights</string>
+    <string name="no_chats_yet_button">No chats yet</string>
+
+    <string name="upload_property_title">Upload Property</string>
+    <string name="edit_property_title">Edit Property</string>
+    <string name="hint_property_title">Property Title</string>
+    <string name="hint_location">Location</string>
+    <string name="hint_price">Price (e.g., PHP 5,000,000)</string>
+    <string name="hint_description">Description</string>
+    <string name="hint_property_type">Property Type (e.g., House, Condo)</string>
+    <string name="hint_bedrooms">Bedrooms</string>
+    <string name="hint_bathrooms">Bathrooms</string>
+    <string name="hint_area">Area (e.g., 120 sqm)</string>
+    <string name="button_select_images">Select Images</string>
+    <string name="button_upload_property">Upload Property</string>
+    <string name="button_update_property">Update Property</string>
+    <string name="loading_property_data">Loading property data...</string>
+    <string name="uploading_property">Uploading Property...</string>
+    <string name="updating_property">Updating Property...</string>
+    <string name="failed_to_load_property_edit">Failed to load property data for editing.</string>
+    <string name="error_parsing_image_uri">Error parsing stored image URI.</string>
+    <string name="bedrooms_bathrooms_must_be_numbers">Bedrooms and bathrooms must be valid numbers.</string>
+
+    <string name="edit_button">Edit</string>
+    <string name="delete_button">Delete</string>
+    <string name="search_hint">Search properties...</string>
+    <string name="no_properties_found">No properties found.</string>
+    <string name="loading">Loading...</string>
+    <string name="error_occurred">An error occurred.</string>
+    <string name="retry">Retry</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="select_pictures">Select Pictures</string>
+    <string name="all_fields_required">All fields are required.</string>
+    <string name="please_select_image">Please select at least one image.</string>
+    <string name="invalid_number_format">Please enter valid numbers.</string>
+    <string name="login_required">You need to be logged in.</string>
+    <string name="failed_to_generate_id">Failed to generate ID.</string>
+    <string name="property_saved_successfully">Property saved successfully!</string>
+    <string name="property_updated_successfully">Property updated successfully!</string>
+    <string name="failed_to_save_property">Failed to save property.</string>
+    <string name="image_removed">Image removed</string>
+    <string name="images_selected">%d images selected</string>
+    <string name="title_upload">Upload</string>
+    <string name="title_listings">Listings</string>
+    <string name="title_bookmarks">Bookmarks</string>
+    <string name="remove_image_button_description">Remove selected image</string>
+
 </resources>

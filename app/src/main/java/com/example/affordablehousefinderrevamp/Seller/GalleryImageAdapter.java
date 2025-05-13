@@ -1,4 +1,4 @@
-package com.example.affordablehousefinderrevamp.Seller;
+package com.example.affordablehousefinderrevamp.Seller; // Or your correct adapter package
 
 import android.content.Context;
 import android.net.Uri;
@@ -6,104 +6,60 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide; // Using Glide for efficient image loading
+import com.example.affordablehousefinderrevamp.R; // For accessing resources like layouts and drawables
 
-import com.example.affordablehousefinderrevamp.R;
-
-import java.util.ArrayList;
 import java.util.List;
 
-// For image loading, you'd typically use a library like Glide or Picasso.
-// import com.bumptech.glide.Glide;
-
-public class GalleryImageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
-    private static final int VIEW_TYPE_NEW_PHOTO = 0;
-    private static final int VIEW_TYPE_IMAGE = 1;
+public class GalleryImageAdapter extends RecyclerView.Adapter<GalleryImageAdapter.ViewHolder> {
 
     private Context context;
     private List<Uri> imageUris;
-    private OnNewPhotoClickListener newPhotoClickListener;
-    private OnImageClickListener imageClickListener;
+    private OnImageRemoveListener onImageRemoveListener;
 
-    public interface OnNewPhotoClickListener {
-        void onNewPhotoClick();
+    // Interface for remove click listener
+    public interface OnImageRemoveListener {
+        void onImageRemove(Uri imageUri, int position);
     }
 
-    public interface OnImageClickListener {
-        void onImageClick(Uri imageUri, int position);
-    }
-
-    public GalleryImageAdapter(Context context, OnNewPhotoClickListener newPhotoClickListener, OnImageClickListener imageClickListener) {
+    public GalleryImageAdapter(Context context, List<Uri> imageUris, OnImageRemoveListener listener) {
         this.context = context;
-        this.imageUris = new ArrayList<>();
-        this.newPhotoClickListener = newPhotoClickListener;
-        this.imageClickListener = imageClickListener;
-    }
-
-    public void setImageUris(List<Uri> uris) {
-        this.imageUris.clear();
-        if (uris != null) {
-            this.imageUris.addAll(uris);
-        }
-        // Notify after clearing and adding all, plus one for the "New Photo" item
-        notifyDataSetChanged();
-    }
-
-    public void addImageUri(Uri uri) {
-        if (uri != null) {
-            this.imageUris.add(0, uri); // Add new images to the start of the list (after "New Photo")
-            notifyItemInserted(1); // "New Photo" is at 0, so new image is at 1
-            notifyItemRangeChanged(1, imageUris.size()); // Update positions
-        }
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        if (position == 0) {
-            return VIEW_TYPE_NEW_PHOTO;
-        }
-        return VIEW_TYPE_IMAGE;
+        this.imageUris = imageUris;
+        this.onImageRemoveListener = listener;
     }
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(context);
-        if (viewType == VIEW_TYPE_NEW_PHOTO) {
-            View view = inflater.inflate(R.layout.item_new_photo, parent, false);
-            return new NewPhotoViewHolder(view);
-        } else {
-            View view = inflater.inflate(R.layout.item_gallery_image, parent, false);
-            return new ImageViewHolder(view);
-        }
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Inflate the item layout (item_gallery_image.xml)
+        // Make sure you have item_gallery_image.xml in your res/layout folder
+        View view = LayoutInflater.from(context).inflate(R.layout.item_gallery_image, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if (getItemViewType(position) == VIEW_TYPE_NEW_PHOTO) {
-            NewPhotoViewHolder newPhotoViewHolder = (NewPhotoViewHolder) holder;
-            newPhotoViewHolder.newPhotoLayout.setOnClickListener(v -> {
-                if (newPhotoClickListener != null) {
-                    newPhotoClickListener.onNewPhotoClick();
-                }
-            });
-        } else {
-            ImageViewHolder imageViewHolder = (ImageViewHolder) holder;
-            // Adjust position because "New Photo" is the first item
-            final int imagePosition = position - 1;
-            Uri imageUri = imageUris.get(imagePosition);
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Uri imageUri = imageUris.get(position);
 
-            // Load image using Glide or Picasso or standard ImageView methods
-            // Example: Glide.with(context).load(imageUri).centerCrop().into(imageViewHolder.imageView);
-            imageViewHolder.imageView.setImageURI(imageUri); // Simple URI setting for now
+        // Load image using Glide
+        Glide.with(context)
+                .load(imageUri)
+                .placeholder(R.drawable.placeholder_image) // Optional: a placeholder drawable
+                .error(R.drawable.ic_launcher_background) // Optional: an error drawable
+                .centerCrop()
+                .into(holder.imageView);
 
-            imageViewHolder.itemView.setOnClickListener(v -> {
-                if (imageClickListener != null) {
-                    imageClickListener.onImageClick(imageUri, imagePosition);
+        // Set click listener for the remove button
+        if (holder.removeButton != null) { // Check if removeButton exists in the layout
+            holder.removeButton.setOnClickListener(v -> {
+                if (onImageRemoveListener != null) {
+                    // Get the adapter position, as it's more reliable inside a listener
+                    int adapterPosition = holder.getAdapterPosition();
+                    if (adapterPosition != RecyclerView.NO_POSITION) {
+                        onImageRemoveListener.onImageRemove(imageUris.get(adapterPosition), adapterPosition);
+                    }
                 }
             });
         }
@@ -111,34 +67,27 @@ public class GalleryImageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public int getItemCount() {
-        return imageUris.size() + 1; // +1 for the "New Photo" item
+        return imageUris == null ? 0 : imageUris.size();
     }
 
-    // ViewHolder for image items
-    static class ImageViewHolder extends RecyclerView.ViewHolder {
+    // ViewHolder class
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
-        // View selectionOverlay; // If you implement selection
-        // ImageView checkmarkIcon; // If you implement selection
+        ImageView removeButton; // Button/ImageView to remove the image from selection
 
-        public ImageViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            imageView = itemView.findViewById(R.id.galleryImageView);
-            // selectionOverlay = itemView.findViewById(R.id.selection_overlay);
-            // checkmarkIcon = itemView.findViewById(R.id.checkmark_icon);
+            // Initialize views from item_gallery_image.xml
+            // Ensure these IDs match your item_gallery_image.xml
+            imageView = itemView.findViewById(R.id.galleryImageViewItem);
+            removeButton = itemView.findViewById(R.id.removeImageButton);
         }
     }
 
-    // ViewHolder for "New Photo" item
-    static class NewPhotoViewHolder extends RecyclerView.ViewHolder {
-        LinearLayout newPhotoLayout;
-        ImageView cameraIcon;
-        TextView newPhotoText;
-
-        public NewPhotoViewHolder(@NonNull View itemView) {
-            super(itemView);
-            newPhotoLayout = itemView.findViewById(R.id.new_photo_item_layout);
-            cameraIcon = itemView.findViewById(R.id.new_photo_icon);
-            newPhotoText = itemView.findViewById(R.id.new_photo_text);
-        }
+    // Helper method to update the list of URIs (optional, if you manage list outside)
+    public void updateImageUris(List<Uri> newImageUris) {
+        this.imageUris.clear();
+        this.imageUris.addAll(newImageUris);
+        notifyDataSetChanged();
     }
 }

@@ -1,157 +1,160 @@
 package com.example.affordablehousefinderrevamp.Seller;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.Toast;
+import android.util.Log; // For logging
+import android.view.View; // For View.VISIBLE/GONE
+
+import com.example.affordablehousefinderrevamp.Adapter.PropertyAdapter;
+import com.example.affordablehousefinderrevamp.Model.Property;
 import com.example.affordablehousefinderrevamp.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore; // Firestore
+import com.google.firebase.firestore.Query; // Firestore
+import com.google.firebase.firestore.QueryDocumentSnapshot; // Firestore
+import com.google.firebase.firestore.ListenerRegistration; // Firestore
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HouseListings extends AppCompatActivity {
 
-    private LinearLayout listingsContainer;
-    private Button mainAddListingButton;
-    private int listingCount = 0;
-    private static final int MAX_LISTINGS = 5;
+    private static final String TAG = "HouseListings"; // For logging
+
+    private RecyclerView recyclerViewSellerProperties;
+    private PropertyAdapter propertyAdapter;
+    private List<Property> sellerPropertyList;
+    private FirebaseFirestore db; // Firestore instance
+    private ListenerRegistration sellerPropertiesListener; // To remove listener
+
+    private FirebaseUser currentUser;
+    private BottomNavigationView bottomNavigationViewSeller;
+    private Button btnAddNewListing;
+    // private TextView emptyViewSellerListings; // Optional: if you add an empty view
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Set the content view to your main layout file
-        setContentView(R.layout.activity_house_listings);
+        setContentView(R.layout.activity_house_listings); // Assumes this layout has the RecyclerView and Button
 
-        // Initialize views
-        listingsContainer = findViewById(R.id.listings_container);
-        mainAddListingButton = findViewById(R.id.button_add_new_listing_main);
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(this, "Login required.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
 
-        // Add the initial listing based on the provided image
-        addInitialListing();
+        db = FirebaseFirestore.getInstance(); // Initialize Firestore
 
-        // Set click listener for the main "ADD LISTING" button
-        mainAddListingButton.setOnClickListener(v -> addNewListingCard());
+        recyclerViewSellerProperties = findViewById(R.id.recyclerViewSellerProperties);
+        // emptyViewSellerListings = findViewById(R.id.emptyViewSellerListings); // Initialize if you add it
+        btnAddNewListing = findViewById(R.id.btnAddNewListing);
+        bottomNavigationViewSeller = findViewById(R.id.bottom_navigation_seller);
 
-        // Update the state of the "ADD LISTING" button (e.g., disable if max reached)
-        updateAddButtonState();
-    }
+        if (recyclerViewSellerProperties != null) {
+            recyclerViewSellerProperties.setHasFixedSize(true);
+            recyclerViewSellerProperties.setLayoutManager(new LinearLayoutManager(this));
+            sellerPropertyList = new ArrayList<>();
+            propertyAdapter = new PropertyAdapter(this, sellerPropertyList, true); // isSellerContext = true
+            recyclerViewSellerProperties.setAdapter(propertyAdapter);
+            fetchSellerProperties();
+        } else {
+            Toast.makeText(this, "Error: RecyclerView not found.", Toast.LENGTH_LONG).show();
+        }
 
-    /**
-     * Adds the first, pre-filled listing to the layout.
-     */
-    private void addInitialListing() {
-        if (listingCount < MAX_LISTINGS) {
-            LayoutInflater inflater = LayoutInflater.from(this);
-            // Inflate the layout for a single listing item
-            View listingView = inflater.inflate(R.layout.list_item_house, listingsContainer, false);
 
-            // Get references to views within the inflated layout
-            ImageView houseImage = listingView.findViewById(R.id.house_image);
-            TextView houseName = listingView.findViewById(R.id.house_name);
-            TextView housePrice = listingView.findViewById(R.id.house_price);
-            TextView houseLocation = listingView.findViewById(R.id.house_location);
-            TextView houseStatus = listingView.findViewById(R.id.house_status);
+        if (btnAddNewListing != null) {
+            btnAddNewListing.setOnClickListener(v -> {
+                Intent uploadIntent = new Intent(HouseListings.this, UploadActivity.class);
+                startActivity(uploadIntent);
+            });
+        }
 
-            // Set data for the initial listing
-            houseImage.setImageResource(R.drawable.placeholder); // Use placeholder
-            houseImage.setBackgroundColor(ContextCompat.getColor(this, R.color.placeholder_image_bg)); // Example background
+        if (bottomNavigationViewSeller != null) {
+            bottomNavigationViewSeller.setSelectedItemId(R.id.navigation_upload); // Assuming this is the "Listings" or "Upload" tab for seller
+            bottomNavigationViewSeller.setOnNavigationItemSelectedListener(item -> {
+                Intent intent = null;
+                int itemId = item.getItemId();
 
-            houseName.setText("Modern House");
-            housePrice.setText("P 20,000,000");
-            houseLocation.setText("Bakakeng North");
-            houseStatus.setText("STATUS : AVAILABLE");
-            houseStatus.setTextColor(ContextCompat.getColor(this, R.color.status_available_color));
+                // Use IDs from bottom_navigation_menu_seller.xml
+                if (itemId == R.id.navigation_upload) { // This might be your "Listings" tab ID
+                    return true;
+                } else if (itemId == R.id.navigation_chat) {
+                    intent = new Intent(HouseListings.this, Chat_Seller.class);
+                } else if (itemId == R.id.navigation_profile) {
+                    intent = new Intent(HouseListings.this, SellerProfile.class);
+                }
 
-            // Setup buttons for this specific listing
-            Button editButton = listingView.findViewById(R.id.button_edit_listing);
-            Button alreadyListedButton = listingView.findViewById(R.id.button_already_listed);
-            Button removeButton = listingView.findViewById(R.id.button_remove_listing);
-
-            // Set click listeners for buttons within the listing item
-            // In a real app, these would trigger actual edit/status change/remove logic
-            editButton.setOnClickListener(view -> Toast.makeText(HouseListings.this, "Edit: " + houseName.getText(), Toast.LENGTH_SHORT).show());
-            alreadyListedButton.setOnClickListener(view -> Toast.makeText(HouseListings.this, "Status button clicked for: " + houseName.getText(), Toast.LENGTH_SHORT).show());
-            removeButton.setOnClickListener(view -> removeListing(listingView)); // Pass the CardView to remove
-
-            // Add the configured listing view to the container
-            listingsContainer.addView(listingView);
-            listingCount++;
-            // updateAddButtonState(); // This will be called in onCreate after this method
+                if (intent != null) {
+                    startActivity(intent);
+                    overridePendingTransition(0,0);
+                    finish();
+                    return true;
+                }
+                return false;
+            });
         }
     }
 
-    /**
-     * Adds a new, empty/template listing card to the scroll view.
-     */
-    private void addNewListingCard() {
-        if (listingCount < MAX_LISTINGS) {
-            LayoutInflater inflater = LayoutInflater.from(this);
-            View listingView = inflater.inflate(R.layout.list_item_house, listingsContainer, false);
-
-            // Get references to views for the new listing
-            ImageView houseImage = listingView.findViewById(R.id.house_image);
-            TextView houseName = listingView.findViewById(R.id.house_name);
-            TextView housePrice = listingView.findViewById(R.id.house_price);
-            TextView houseLocation = listingView.findViewById(R.id.house_location);
-            TextView houseStatus = listingView.findViewById(R.id.house_status);
-
-            // Set placeholder/default data for the new listing
-            houseImage.setImageResource(R.drawable.placeholder);
-            houseImage.setBackgroundColor(ContextCompat.getColor(this, R.color.placeholder_image_bg_new));
-
-            houseName.setText("New Listing " + (listingCount + 1)); // Differentiate new listings
-            housePrice.setText("P Enter Price");
-            houseLocation.setText("Enter Location");
-            houseStatus.setText("STATUS : PENDING");
-            houseStatus.setTextColor(ContextCompat.getColor(this, R.color.status_pending_color));
-
-            Button editButton = listingView.findViewById(R.id.button_edit_listing);
-            Button alreadyListedButton = listingView.findViewById(R.id.button_already_listed);
-            Button removeButton = listingView.findViewById(R.id.button_remove_listing);
-
-            final String currentHouseName = houseName.getText().toString(); // For use in lambda
-            editButton.setOnClickListener(view -> Toast.makeText(HouseListings.this, "Edit: " + currentHouseName, Toast.LENGTH_SHORT).show());
-            alreadyListedButton.setOnClickListener(view -> Toast.makeText(HouseListings.this, "Status button clicked for: " + currentHouseName, Toast.LENGTH_SHORT).show());
-            removeButton.setOnClickListener(view -> removeListing(listingView));
-
-            listingsContainer.addView(listingView);
-            listingCount++;
-            updateAddButtonState();
-        } else {
-            Toast.makeText(this, "Maximum of " + MAX_LISTINGS + " listings reached.", Toast.LENGTH_SHORT).show();
+    private void fetchSellerProperties() {
+        if (currentUser == null || propertyAdapter == null) {
+            Log.w(TAG, "Cannot fetch seller properties: current user or adapter is null.");
+            // if (emptyViewSellerListings != null) emptyViewSellerListings.setVisibility(View.VISIBLE);
+            // if (recyclerViewSellerProperties != null) recyclerViewSellerProperties.setVisibility(View.GONE);
+            return;
         }
+        String currentUserId = currentUser.getUid();
+
+        // Query Firestore for properties where sellerId matches currentUserId
+        // Order by timestamp, newest first. Ensure Firestore index for sellerId and timestamp.
+        sellerPropertiesListener = db.collection("properties")
+                .whereEqualTo("sellerId", currentUserId)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null) {
+                        Log.w(TAG, "Listen failed for seller properties.", e);
+                        Toast.makeText(HouseListings.this, "Failed to load your properties: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        // if (emptyViewSellerListings != null) emptyViewSellerListings.setVisibility(View.VISIBLE);
+                        // if (recyclerViewSellerProperties != null) recyclerViewSellerProperties.setVisibility(View.GONE);
+                        return;
+                    }
+
+                    sellerPropertyList.clear();
+                    if (queryDocumentSnapshots != null) {
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                            Property property = doc.toObject(Property.class);
+                            // property.setPropertyId(doc.getId()); // @DocumentId handles this
+                            sellerPropertyList.add(property);
+                        }
+                    }
+                    propertyAdapter.notifyDataSetChanged();
+
+                    if (sellerPropertyList.isEmpty()) {
+                        // if (emptyViewSellerListings != null) emptyViewSellerListings.setVisibility(View.VISIBLE);
+                        // if (recyclerViewSellerProperties != null) recyclerViewSellerProperties.setVisibility(View.GONE);
+                        Toast.makeText(HouseListings.this, "You have not listed any properties yet.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // if (emptyViewSellerListings != null) emptyViewSellerListings.setVisibility(View.GONE);
+                        // if (recyclerViewSellerProperties != null) recyclerViewSellerProperties.setVisibility(View.VISIBLE);
+                    }
+                });
     }
 
-    /**
-     * Removes a listing view from the container.
-     * @param listingViewToRemove The CardView of the listing to remove.
-     */
-    private void removeListing(View listingViewToRemove) {
-        listingsContainer.removeView(listingViewToRemove);
-        listingCount--;
-        updateAddButtonState();
-        Toast.makeText(this, "Listing removed.", Toast.LENGTH_SHORT).show();
-    }
-
-    /**
-     * Updates the state (enabled/disabled, text) of the main "ADD LISTING" button
-     * based on the current number of listings.
-     */
-    private void updateAddButtonState() {
-        if (listingCount >= MAX_LISTINGS) {
-            mainAddListingButton.setEnabled(false);
-            // Apply a specific tint for the disabled state using the selector
-            mainAddListingButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.button_add_listing_tint));
-            mainAddListingButton.setText("MAX LISTINGS REACHED (" + listingCount + "/" + MAX_LISTINGS + ")");
-        } else {
-            mainAddListingButton.setEnabled(true);
-            // Apply the tint selector which handles enabled state
-            mainAddListingButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.button_add_listing_tint));
-            mainAddListingButton.setText("ADD LISTING (" + listingCount + "/" + MAX_LISTINGS + ")");
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (sellerPropertiesListener != null) {
+            sellerPropertiesListener.remove(); // Remove Firestore listener
         }
     }
 }

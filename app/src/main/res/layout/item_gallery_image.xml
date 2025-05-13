@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="100dp"
+    android:layout_height="100dp"
     android:layout_margin="2dp"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground">
 
     <ImageView
-        android:id="@+id/galleryImageView"
+        android:id="@+id/galleryImageViewItem"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scaleType="centerCrop"
@@ -19,29 +20,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:src="@drawable/placeholder_image"/>
-
-    <View
-    android:id="@+id/selection_overlay"
-    android:layout_width="0dp"
-    android:layout_height="0dp"
-    android:background="#80000000"
-    android:visibility="gone"
+        tools:srcCompat="@drawable/placeholder_image"/> <ImageView
+    android:id="@+id/removeImageButton"
+    android:layout_width="28dp"
+    android:layout_height="28dp"
+    android:src="@drawable/ic_close"
+    android:background="@drawable/bg_unread_count"
+    app:tint="@android:color/white"
+    android:padding="6dp"
+    android:contentDescription="@string/remove_image_button_description"
     app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintBottom_toBottomOf="parent"/>
-
-    <ImageView
-        android:id="@+id/checkmark_icon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@android:drawable/checkbox_on_background"
-        android:visibility="gone"
-        app:tint="@color/white"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="4dp"/>
-
+    android:layout_margin="4dp"
+    android:elevation="2dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
