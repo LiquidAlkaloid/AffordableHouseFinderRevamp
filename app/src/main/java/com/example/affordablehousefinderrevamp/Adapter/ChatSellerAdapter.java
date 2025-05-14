@@ -1,5 +1,4 @@
-package com.example.affordablehousefinderrevamp.Seller;
- // Replace com.example.yourappname with your actual package name
+package com.example.affordablehousefinderrevamp.Adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,13 +9,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+// import com.bumptech.glide.Glide; // Glide not used if profileImageUrl is removed from ChatItem
+// import com.bumptech.glide.request.RequestOptions; // Not used
 import com.example.affordablehousefinderrevamp.ChatItem;
 import com.example.affordablehousefinderrevamp.R;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
-
-// Import your ChatItem model
-// import com.bumptech.glide.Glide; // Example for image loading, add Glide dependency if you use it
+import java.util.Locale;
+import java.util.Date;
 
 public class ChatSellerAdapter extends RecyclerView.Adapter<ChatSellerAdapter.ChatViewHolder> {
 
@@ -24,12 +25,10 @@ public class ChatSellerAdapter extends RecyclerView.Adapter<ChatSellerAdapter.Ch
     private List<ChatItem> chatItems;
     private OnChatItemClickListener listener;
 
-    // Interface for click events
     public interface OnChatItemClickListener {
         void onItemClick(ChatItem chatItem);
     }
 
-    // Constructor
     public ChatSellerAdapter(Context context, List<ChatItem> chatItems, OnChatItemClickListener listener) {
         this.context = context;
         this.chatItems = chatItems;
@@ -39,7 +38,6 @@ public class ChatSellerAdapter extends RecyclerView.Adapter<ChatSellerAdapter.Ch
     @NonNull
     @Override
     public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate the item layout
         View view = LayoutInflater.from(context).inflate(R.layout.item_chat_seller, parent, false);
         return new ChatViewHolder(view);
     }
@@ -48,32 +46,38 @@ public class ChatSellerAdapter extends RecyclerView.Adapter<ChatSellerAdapter.Ch
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
         ChatItem currentItem = chatItems.get(position);
 
-        // Bind data to the views
-        holder.senderName.setText(currentItem.getSenderName());
+        // senderName in ChatItem for the seller's list is the Buyer's name
+        if (currentItem.getSenderName() != null) {
+            holder.senderName.setText(currentItem.getSenderName());
+        } else {
+            holder.senderName.setText("Buyer"); // Fallback name
+        }
         holder.lastMessage.setText(currentItem.getLastMessage());
-        holder.timestamp.setText(currentItem.getTimestamp());
 
-        // Handle profile image (using a placeholder for now)
-        // You would typically use a library like Glide or Picasso here
-        // Glide.with(context).load(currentItem.getProfileImageUrl()).placeholder(R.drawable.ic_profile_placeholder).into(holder.profilePic);
-        holder.profilePic.setImageResource(R.drawable.ic_person_placeholder); // Placeholder
+        // Format and display the timestamp from the Date object
+        if (currentItem.getTimestampDate() != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+            holder.timestamp.setText(sdf.format(currentItem.getTimestampDate()));
+        } else {
+            holder.timestamp.setText("");
+        }
 
-        // Handle unread count and read tick visibility
+        // Profile Image for the Buyer is no longer loaded from ChatItem's profileImageUrl
+        // Set a default placeholder for the profile picture
+        holder.profilePic.setImageResource(R.drawable.ic_person_placeholder);
+
+
+        // Handle Unread Count display
         if (currentItem.getUnreadCount() > 0) {
             holder.unreadCount.setVisibility(View.VISIBLE);
             holder.unreadCount.setText(String.valueOf(currentItem.getUnreadCount()));
-            holder.readTick.setVisibility(View.GONE);
-        } else if (currentItem.isRead()) {
+            if (holder.readTick != null) holder.readTick.setVisibility(View.GONE);
+        } else {
             holder.unreadCount.setVisibility(View.GONE);
-            holder.readTick.setVisibility(View.VISIBLE);
-            // You might want different tick icons for sent, delivered, read
-            // For simplicity, using one tick for "read"
-        } else { // Message sent but not read, no unread count
-            holder.unreadCount.setVisibility(View.GONE);
-            holder.readTick.setVisibility(View.GONE); // Or a "sent" tick if you have one
+            if (holder.readTick != null) holder.readTick.setVisibility(View.GONE);
         }
 
-        // Set click listener for the item
+        // Set click listener for the item view
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onItemClick(currentItem);
@@ -83,10 +87,9 @@ public class ChatSellerAdapter extends RecyclerView.Adapter<ChatSellerAdapter.Ch
 
     @Override
     public int getItemCount() {
-        return chatItems.size();
+        return chatItems != null ? chatItems.size() : 0;
     }
 
-    // ViewHolder class
     static class ChatViewHolder extends RecyclerView.ViewHolder {
         ImageView profilePic;
         TextView senderName;
@@ -97,19 +100,12 @@ public class ChatSellerAdapter extends RecyclerView.Adapter<ChatSellerAdapter.Ch
 
         public ChatViewHolder(@NonNull View itemView) {
             super(itemView);
-            profilePic = itemView.findViewById(R.id.iv_profile_pic);
+            profilePic = itemView.findViewById(R.id.iv_profile_pic); // Ensure this ID is in item_chat_seller.xml
             senderName = itemView.findViewById(R.id.tv_sender_name);
             lastMessage = itemView.findViewById(R.id.tv_last_message);
             timestamp = itemView.findViewById(R.id.tv_timestamp);
             unreadCount = itemView.findViewById(R.id.tv_unread_count);
             readTick = itemView.findViewById(R.id.iv_read_tick);
         }
-    }
-
-    // Helper method to update data (optional)
-    public void updateChatItems(List<ChatItem> newChatItems) {
-        this.chatItems.clear();
-        this.chatItems.addAll(newChatItems);
-        notifyDataSetChanged();
     }
 }

@@ -372,7 +372,7 @@ public class BuyerProfile extends AppCompatActivity {
                 if (itemId == R.id.navigation_home) {
                     intent = new Intent(BuyerProfile.this, Homepage.class);
                 } else if (itemId == R.id.navigation_chat) {
-                    intent = new Intent(BuyerProfile.this, Chat_Buyer.class);
+                    intent = new Intent(BuyerProfile.this, ChatBuyerActivity.class);
                 } else if (itemId == R.id.navigation_profile) {
                     return true; // Already on this screen
                 }

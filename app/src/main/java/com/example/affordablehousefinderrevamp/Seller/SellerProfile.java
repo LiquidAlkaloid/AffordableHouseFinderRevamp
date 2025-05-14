@@ -36,11 +36,14 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -445,62 +448,95 @@ public class SellerProfile extends AppCompatActivity {
 
     private void loadRecentListings() {
         if (currentUser == null) return;
-        db.collection("properties")
+
+        // Reference to the current user’s properties
+        CollectionReference propsRef = db.collection("properties");
+
+        // First attempt: ordered by timestamp (requires composite index)
+        propsRef
                 .whereEqualTo("sellerId", currentUser.getUid())
                 .orderBy("timestamp", Query.Direction.DESCENDING)
-                .limit(6) // Load up to 6 recent listings
+                .limit(6)
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (queryDocumentSnapshots.isEmpty()) {
-                        Log.d(TAG, "No listings found for this seller.");
-                        // Set all placeholders if no listings
-                        for(ImageView iv : houseImageViewList) {
-                            if (iv != null) iv.setImageResource(R.drawable.placeholder);
-                        }
-                        return;
-                    }
-                    int i = 0;
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        if (i < houseImageViewList.size()) {
-                            Property property = doc.toObject(Property.class);
-                            ImageView currentImageView = houseImageViewList.get(i);
-                            if (currentImageView != null) {
-                                String imageUrl = null;
-                                // Prioritize list of imageUrls, then single imageUrl
-                                if (property.getImageUrls() != null && !property.getImageUrls().isEmpty()) {
-                                    imageUrl = property.getImageUrls().get(0); // Get the first image
-                                } else if (property.getImageUrl() != null && !property.getImageUrl().isEmpty()) {
-                                    imageUrl = property.getImageUrl();
-                                }
-
-                                if (imageUrl != null) {
-                                    Glide.with(SellerProfile.this)
-                                            .load(imageUrl)
-                                            .placeholder(R.drawable.placeholder) // Placeholder while loading
-                                            .error(R.drawable.placeholder) // Fallback if image fails to load
-                                            .centerCrop()
-                                            .into(currentImageView);
-                                } else {
-                                    currentImageView.setImageResource(R.drawable.placeholder); // Default if no URL
-                                }
-                            }
-                            i++;
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot snaps = task.getResult();
+                        if (snaps != null && !snaps.isEmpty()) {
+                            populateHousePreviews(snaps);
                         } else {
-                            break; // Stop if we've filled all available ImageViews
+                            // No listings found: show placeholders
+                            setAllPreviewsToPlaceholder();
+                        }
+                    } else {
+                        Exception e = task.getException();
+                        Log.e(TAG, "Error loading recent listings", e);
+
+                        // If it’s the “requires index” failure, retry without ordering
+                        if (e instanceof FirebaseFirestoreException
+                                && ((FirebaseFirestoreException) e).getCode() == FirebaseFirestoreException.Code.FAILED_PRECONDITION) {
+
+                            Log.w(TAG, "Index missing for ordered query, retrying unordered fetch");
+                            // Retry: fetch up to 6 without ordering (no index required)
+                            propsRef
+                                    .whereEqualTo("sellerId", currentUser.getUid())
+                                    .limit(6)
+                                    .get()
+                                    .addOnCompleteListener(retry -> {
+                                        if (retry.isSuccessful() && retry.getResult() != null && !retry.getResult().isEmpty()) {
+                                            populateHousePreviews(retry.getResult());
+                                        } else {
+                                            setAllPreviewsToPlaceholder();
+                                        }
+                                    });
+                        } else {
+                            // Completely unexpected error
+                            Toast.makeText(SellerProfile.this, "Failed to load listings.", Toast.LENGTH_SHORT).show();
+                            setAllPreviewsToPlaceholder();
                         }
                     }
-                    // If fewer than 6 listings were found, set remaining ImageViews to a placeholder
-                    for (int j = i; j < houseImageViewList.size(); j++) {
-                        ImageView remainingImageView = houseImageViewList.get(j);
-                        if (remainingImageView != null) {
-                            remainingImageView.setImageResource(R.drawable.placeholder);
-                        }
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error loading recent listings", e);
-                    Toast.makeText(SellerProfile.this, "Failed to load listings.", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    /**
+     * Helper: load each ImageView from the given QuerySnapshot.
+     */
+    private void populateHousePreviews(QuerySnapshot snaps) {
+        int i = 0;
+        for (DocumentSnapshot doc : snaps.getDocuments()) {
+            if (i >= houseImageViewList.size()) break;
+            Property property = doc.toObject(Property.class);
+            String imageUrl = null;
+            if (property.getImageUrls() != null && !property.getImageUrls().isEmpty()) {
+                imageUrl = property.getImageUrls().get(0);
+            } else if (property.getImageUrl() != null && !property.getImageUrl().isEmpty()) {
+                imageUrl = property.getImageUrl();
+            }
+
+            ImageView iv = houseImageViewList.get(i++);
+            if (imageUrl != null) {
+                Glide.with(this)
+                        .load(imageUrl)
+                        .placeholder(R.drawable.placeholder)
+                        .error(R.drawable.placeholder)
+                        .centerCrop()
+                        .into(iv);
+            } else {
+                iv.setImageResource(R.drawable.placeholder);
+            }
+        }
+        // Fill out any remaining slots with placeholder
+        for (; i < houseImageViewList.size(); i++) {
+            houseImageViewList.get(i).setImageResource(R.drawable.placeholder);
+        }
+    }
+
+    /**
+     * Helper: set every preview slot to the default placeholder image.
+     */
+    private void setAllPreviewsToPlaceholder() {
+        for (ImageView iv : houseImageViewList) {
+            iv.setImageResource(R.drawable.placeholder);
+        }
     }
 
     // This was for the grid ImageViews, if they were pickable. Kept for potential future use.
@@ -543,22 +579,22 @@ public class SellerProfile extends AppCompatActivity {
 
     private void setupBottomNavigation() {
         if (bottomNavigationViewSeller != null) {
-            bottomNavigationViewSeller.setSelectedItemId(R.id.navigation_profile); // Set Profile as selected
+            bottomNavigationViewSeller.setSelectedItemId(R.id.navigation_profile);
             bottomNavigationViewSeller.setOnNavigationItemSelectedListener(item -> {
                 Intent intent = null;
                 int itemId = item.getItemId();
                 if (itemId == R.id.navigation_upload) {
                     intent = new Intent(SellerProfile.this, HouseListings.class);
                 } else if (itemId == R.id.navigation_chat) {
-                    intent = new Intent(SellerProfile.this, Chat_Seller.class); // Ensure Chat_Seller is implemented
+                    // Corrected Intent to go to ChatSellerActivity (the list of chats)
+                    intent = new Intent(SellerProfile.this, ChatSellerActivity.class);
                 } else if (itemId == R.id.navigation_profile) {
-                    return true; // Already on this screen
+                    return true;
                 }
-
                 if (intent != null) {
                     startActivity(intent);
-                    overridePendingTransition(0,0); // No animation
-                    finish(); // Finish current activity
+                    overridePendingTransition(0,0);
+                    finish();
                     return true;
                 }
                 return false;

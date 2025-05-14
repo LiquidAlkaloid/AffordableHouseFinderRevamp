@@ -71,7 +71,7 @@ public class Homepage extends AppCompatActivity {
                 Intent intent = null;
                 int itemId = item.getItemId();
                 if (itemId == R.id.navigation_home) return true;
-                else if (itemId == R.id.navigation_chat) intent = new Intent(Homepage.this, Chat_Buyer.class);
+                else if (itemId == R.id.navigation_chat) intent = new Intent(Homepage.this, ChatBuyerActivity.class);
                 else if (itemId == R.id.navigation_profile) intent = new Intent(Homepage.this, BuyerProfile.class);
 
                 if (intent != null) {
