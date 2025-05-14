@@ -31,7 +31,7 @@ import com.google.firebase.firestore.ListenerRegistration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Collections;
+// import java.util.Collections; // Not strictly needed if getPrimaryImageUrl() is used
 
 public class PropertyDetail extends AppCompatActivity {
 
@@ -50,7 +50,7 @@ public class PropertyDetail extends AppCompatActivity {
     private FirebaseFirestore db;
     private DocumentReference propertyDocRef;
     private ListenerRegistration propertyListenerRegistration;
-    private DocumentReference userBookmarkDocRef;
+    private DocumentReference userBookmarkDocRef; // For a specific property in user's bookmarks
 
     private FirebaseAuth firebaseAuth;
     private FirebaseUser currentUser;
@@ -78,8 +78,8 @@ public class PropertyDetail extends AppCompatActivity {
         bedroomsTextViewPropertyDetail = findViewById(R.id.bedroomsTextViewPropertyDetail);
         bathroomsTextViewPropertyDetail = findViewById(R.id.bathroomsTextViewPropertyDetail);
         areaTextViewPropertyDetail = findViewById(R.id.areaTextViewPropertyDetail);
-        buttonChatWithSeller = findViewById(R.id.chatButton); // Corrected ID from XML
-        buttonBuyNow = findViewById(R.id.buyButton);       // Corrected ID from XML
+        buttonChatWithSeller = findViewById(R.id.chatButton);
+        buttonBuyNow = findViewById(R.id.buyButton);
 
         closeButton.setOnClickListener(v -> onBackPressed());
         shareButtonPropertyDetail.setOnClickListener(v -> shareProperty());
@@ -88,9 +88,8 @@ public class PropertyDetail extends AppCompatActivity {
                 Toast.makeText(PropertyDetail.this, "Feedback clicked (not implemented)", Toast.LENGTH_SHORT).show()
         );
 
-        // Both buttons will now initiate a chat
         buttonChatWithSeller.setOnClickListener(v -> initiateChatWithSeller());
-        buttonBuyNow.setOnClickListener(v -> initiateChatWithSeller()); // "Buy Now" also initiates chat
+        buttonBuyNow.setOnClickListener(v -> initiateChatWithSeller());
 
         propertyId = getIntent().getStringExtra("propertyId");
         if (propertyId == null || propertyId.isEmpty()) {
@@ -102,9 +101,10 @@ public class PropertyDetail extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         currentUser = firebaseAuth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
-        propertyDocRef = db.collection("properties").document(propertyId);
+        propertyDocRef = db.collection("Properties").document(propertyId); // Corrected collection name
 
         if (currentUser != null) {
+            // Path to check if THIS property is bookmarked by current user
             userBookmarkDocRef = db.collection("users").document(currentUser.getUid())
                     .collection("bookmarked_properties").document(propertyId);
             checkIfBookmarked();
@@ -123,7 +123,7 @@ public class PropertyDetail extends AppCompatActivity {
             if (documentSnapshot != null && documentSnapshot.exists()) {
                 currentProperty = documentSnapshot.toObject(Property.class);
                 if (currentProperty != null) {
-                    currentProperty.setPropertyId(documentSnapshot.getId()); // Ensure propertyId is set
+                    currentProperty.setPropertyId(documentSnapshot.getId());
                     populateUI();
                 } else {
                     Toast.makeText(PropertyDetail.this, "Error converting property data.", Toast.LENGTH_SHORT).show();
@@ -137,12 +137,12 @@ public class PropertyDetail extends AppCompatActivity {
     private void populateUI() {
         if (currentProperty == null) return;
 
-        propertyTitleTextView.setText(currentProperty.getTitle().toUpperCase());
+        propertyTitleTextView.setText(currentProperty.getName() != null ? currentProperty.getName().toUpperCase() : "N/A"); // Corrected
         propertyPriceTextView.setText(currentProperty.getPrice());
         locationTextViewPropertyDetail.setText(currentProperty.getLocation());
         descriptionTextViewPropertyDetail.setText(currentProperty.getDescription());
-        bedroomsTextViewPropertyDetail.setText("Bedrooms: " + currentProperty.getBedrooms());
-        bathroomsTextViewPropertyDetail.setText("Bathrooms: " + currentProperty.getBathrooms());
+        bedroomsTextViewPropertyDetail.setText("Bedrooms: " + currentProperty.getNumBedrooms()); // Corrected
+        bathroomsTextViewPropertyDetail.setText("Bathrooms: " + currentProperty.getNumBathrooms()); // Corrected
         areaTextViewPropertyDetail.setText("Area: " + currentProperty.getArea());
 
         if (currentProperty.getStatus() != null && !currentProperty.getStatus().isEmpty()) {
@@ -150,14 +150,13 @@ public class PropertyDetail extends AppCompatActivity {
             propertyStatusTextView.setText(statusText);
             switch (currentProperty.getStatus().toLowerCase()) {
                 case "available":
-                    propertyStatusTextView.setTextColor(ContextCompat.getColor(this, R.color.status_available_color));
+                    propertyStatusTextView.setTextColor(ContextCompat.getColor(this, R.color.status_available_green));
                     break;
-                case "taken":
-                case "sold": // Assuming "sold" is similar to "taken"
-                    propertyStatusTextView.setTextColor(ContextCompat.getColor(this, R.color.status_taken_color));
+                case "taken": case "sold":
+                    propertyStatusTextView.setTextColor(ContextCompat.getColor(this, R.color.status_taken_red));
                     break;
                 case "reserved":
-                    propertyStatusTextView.setTextColor(ContextCompat.getColor(this, R.color.status_reserved_color));
+                    propertyStatusTextView.setTextColor(ContextCompat.getColor(this, R.color.status_reserved_orange));
                     break;
                 default:
                     propertyStatusTextView.setTextColor(Color.DKGRAY);
@@ -168,10 +167,7 @@ public class PropertyDetail extends AppCompatActivity {
             propertyStatusTextView.setTextColor(Color.DKGRAY);
         }
 
-        List<String> images = currentProperty.getImageUrls();
-        if (images == null && currentProperty.getImageUrl() != null) {
-            images = Collections.singletonList(currentProperty.getImageUrl());
-        }
+        List<String> images = currentProperty.getImageUrls(); // Corrected
 
         if (imageViewPager != null && tabLayoutIndicator != null) {
             if (images != null && !images.isEmpty()) {
@@ -184,7 +180,8 @@ public class PropertyDetail extends AppCompatActivity {
                     tabLayoutIndicator.setVisibility(View.GONE);
                 }
             } else {
-                imageViewPager.setVisibility(View.GONE);
+                // Show a placeholder if no images
+                imageViewPager.setVisibility(View.GONE); // Or set a placeholder in adapter
                 tabLayoutIndicator.setVisibility(View.GONE);
             }
         }
@@ -198,21 +195,22 @@ public class PropertyDetail extends AppCompatActivity {
         userBookmarkDocRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
-                isBookmarked = document.exists();
+                isBookmarked = document != null && document.exists();
             } else {
                 Log.e(TAG, "Error checking bookmark status", task.getException());
-                isBookmarked = false;
+                isBookmarked = false; // Default to not bookmarked on error
             }
-            updateBookmarkButtonVisual();
+            updateBookmarkButtonVisual(); // Update UI regardless of success or failure
         });
     }
+
 
     private void updateBookmarkButtonVisual() {
         if (bookmarkButton == null) return;
         if (isBookmarked) {
-            bookmarkButton.setImageResource(R.drawable.baseline_bookmark_50);
+            bookmarkButton.setImageResource(R.drawable.baseline_bookmark_50); // Filled icon
         } else {
-            bookmarkButton.setImageResource(R.drawable.ic_bookmark_24);
+            bookmarkButton.setImageResource(R.drawable.ic_bookmark_24); // Border icon (ensure this exists)
         }
     }
 
@@ -233,15 +231,21 @@ public class PropertyDetail extends AppCompatActivity {
                         updateBookmarkButtonVisual();
                         Toast.makeText(PropertyDetail.this, getString(R.string.removed_from_bookmarks), Toast.LENGTH_SHORT).show();
                     })
-                    .addOnFailureListener(e -> Toast.makeText(PropertyDetail.this, getString(R.string.failed_to_remove_bookmark), Toast.LENGTH_SHORT).show());
+                    .addOnFailureListener(e -> Toast.makeText(PropertyDetail.this, getString(R.string.failed_to_remove_bookmark) + ": " + e.getMessage(), Toast.LENGTH_SHORT).show());
         } else {
+            // Create a map of the data you want to store for the bookmark.
+            // This should match what BookmarksAdapter expects.
             Map<String, Object> bookmarkData = new HashMap<>();
-            bookmarkData.put("propertyId", currentProperty.getPropertyId());
-            bookmarkData.put("title", currentProperty.getTitle());
-            bookmarkData.put("imageUrl", currentProperty.getImageUrl() != null ? currentProperty.getImageUrl() : (currentProperty.getImageUrls() != null && !currentProperty.getImageUrls().isEmpty() ? currentProperty.getImageUrls().get(0) : null));
+            bookmarkData.put("propertyId", currentProperty.getPropertyId()); // Redundant if doc ID is propertyId, but good for queries
+            bookmarkData.put("name", currentProperty.getName()); // Corrected
+            String primaryImage = currentProperty.getPrimaryImageUrl();
+            if (primaryImage != null) {
+                bookmarkData.put("primaryImageUrl", primaryImage); // Store only primary for bookmark list item
+            }
             bookmarkData.put("price", currentProperty.getPrice());
             bookmarkData.put("location", currentProperty.getLocation());
             bookmarkData.put("bookmarkedAt", FieldValue.serverTimestamp());
+            // Add other fields if your BookmarksAdapter needs them
 
             userBookmarkDocRef.set(bookmarkData)
                     .addOnSuccessListener(aVoid -> {
@@ -249,20 +253,21 @@ public class PropertyDetail extends AppCompatActivity {
                         updateBookmarkButtonVisual();
                         Toast.makeText(PropertyDetail.this, getString(R.string.added_to_bookmarks), Toast.LENGTH_SHORT).show();
                     })
-                    .addOnFailureListener(e -> Toast.makeText(PropertyDetail.this, getString(R.string.failed_to_add_bookmark), Toast.LENGTH_SHORT).show());
+                    .addOnFailureListener(e -> Toast.makeText(PropertyDetail.this, getString(R.string.failed_to_add_bookmark) + ": " + e.getMessage(), Toast.LENGTH_SHORT).show());
         }
     }
 
     private void shareProperty() {
-        if (currentProperty != null) {
+        if (currentProperty != null && currentProperty.getName() != null) {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
-            String propertyUrl = "https://your-app-url.com/property/" + propertyId;
-            String shareBody = "Check out this property: " + currentProperty.getTitle() +
+            // Consider creating a dynamic link or a web page for properties for better sharing
+            String propertyShareUrl = "https://your-app-domain.com/property/" + propertyId; // Example
+            String shareBody = "Check out this property: " + currentProperty.getName() +
                     "\nLocation: " + currentProperty.getLocation() +
                     "\nPrice: " + currentProperty.getPrice() +
-                    "\n" + propertyUrl;
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Property For Sale: " + currentProperty.getTitle());
+                    "\n" + propertyShareUrl; // Use a real link if available
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Property For Sale: " + currentProperty.getName());
             shareIntent.putExtra(Intent.EXTRA_TEXT, shareBody);
             startActivity(Intent.createChooser(shareIntent, "Share via"));
         } else {
@@ -284,12 +289,12 @@ public class PropertyDetail extends AppCompatActivity {
             return;
         }
 
-        // Navigate to Chat_Buyer.java (individual chat screen for buyer)
-        Intent intent = new Intent(this, Chat_Buyer.class);
-        intent.putExtra("sellerId", currentProperty.getSellerId()); // Pass Seller's User ID
+        Intent intent = new Intent(this, Chat_Buyer.class); // This should be the individual chat screen
+        intent.putExtra("sellerId", currentProperty.getSellerId());
         intent.putExtra("propertyId", currentProperty.getPropertyId());
-        intent.putExtra("propertyName", currentProperty.getTitle());
-        // Chat_Buyer will then fetch seller's name/email for its header
+        intent.putExtra("propertyName", currentProperty.getName()); // Corrected
+        // Pass any other necessary info like seller name if available directly on currentProperty
+        // or fetch in Chat_Buyer
         startActivity(intent);
     }
 

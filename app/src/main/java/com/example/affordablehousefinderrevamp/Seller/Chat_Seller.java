@@ -12,8 +12,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,13 +28,12 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
+import java.util.Date; // Added import for java.util.Date
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +58,8 @@ public class Chat_Seller extends AppCompatActivity {
 
     private String buyerId;
     private String propertyId;
-    private String propertyName;
+    private String propertyNameFromIntent;
+    private String propertyNameForDisplay;
     private String chatId;
 
     private MessageAdapter messageAdapterSeller;
@@ -100,7 +98,7 @@ public class Chat_Seller extends AppCompatActivity {
                     !TextUtils.isEmpty(propertyId) ? propertyId : "general_inquiry");
         }
         if (chatId.startsWith("error_")) {
-            Toast.makeText(this, "Invalid chat session.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Invalid chat session parameters.", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
@@ -110,13 +108,13 @@ public class Chat_Seller extends AppCompatActivity {
 
         loadCurrentSellerDetails(() -> loadBuyerDetailsForHeader(() -> {
             if (currentSellerDetails == null || buyerDetails == null) {
-                Toast.makeText(this, "Failed to load profiles.", Toast.LENGTH_LONG).show();
-                return;
+                // Error logged, UI might be partially updated or show placeholders
             }
             if (!TextUtils.isEmpty(propertyId)) {
                 loadPropertyDetailsForCard();
             } else {
                 cardOfferViewPropertySeller.setVisibility(View.GONE);
+                propertyNameForDisplay = "General Inquiry";
                 createOrUpdateChatSessionMetadata();
             }
             listenToMessages();
@@ -146,16 +144,15 @@ public class Chat_Seller extends AppCompatActivity {
         chatId      = intent.getStringExtra("chatId");
         buyerId     = intent.getStringExtra("buyerId");
         propertyId  = intent.getStringExtra("propertyId");
-        propertyName= intent.getStringExtra("propertyName");
-        Log.d(TAG, "Intent → chatId:" + chatId
-                + " buyerId:" + buyerId
-                + " propertyId:" + propertyId);
+        propertyNameFromIntent = intent.getStringExtra("propertyName");
+        Log.d(TAG, "Intent → chatId:" + chatId + " buyerId:" + buyerId + " propertyId:" + propertyId + " propNameIntent:" + propertyNameFromIntent);
     }
 
     private void setupUIListeners() {
         icBackHeader.setOnClickListener(v -> onBackPressed());
 
         if (!TextUtils.isEmpty(propertyId)) {
+            btnViewPropertyDetailsCardSeller.setVisibility(View.VISIBLE);
             btnViewPropertyDetailsCardSeller.setOnClickListener(v -> {
                 Intent i = new Intent(this, SellerPropertyDetails.class);
                 i.putExtra("propertyId", propertyId);
@@ -171,10 +168,15 @@ public class Chat_Seller extends AppCompatActivity {
     }
 
     private String generateChatId(String u1, String u2, String ctx) {
+        if (TextUtils.isEmpty(u1) || TextUtils.isEmpty(u2) || TextUtils.isEmpty(ctx)) {
+            Log.e(TAG, "Cannot generate chatId with null/empty components.");
+            return "error_invalid_components";
+        }
+        String sanitizedCtx = ctx.replaceAll("[^a-zA-Z0-9-]", "_");
         if (u1.compareTo(u2) < 0) {
-            return u1 + "_" + u2 + "_" + ctx.replaceAll("[^a-zA-Z0-9-]", "-");
+            return u1 + "_" + u2 + "_" + sanitizedCtx;
         } else {
-            return u2 + "_" + u1 + "_" + ctx.replaceAll("[^a-zA-Z0-9-]", "-");
+            return u2 + "_" + u1 + "_" + sanitizedCtx;
         }
     }
 
@@ -184,7 +186,7 @@ public class Chat_Seller extends AppCompatActivity {
                     currentSellerDetails = doc.toObject(User.class);
                     cb.onCallback();
                 }).addOnFailureListener(e -> {
-                    Log.e(TAG, "Error loading seller", e);
+                    Log.e(TAG, "Error loading seller details", e);
                     cb.onCallback();
                 });
     }
@@ -196,44 +198,53 @@ public class Chat_Seller extends AppCompatActivity {
                     if (buyerDetails != null) {
                         tvBuyerNameHeader.setText(buyerDetails.getName());
                         tvBuyerEmailHeader.setText(buyerDetails.getEmail());
+                    } else {
+                        tvBuyerNameHeader.setText("Buyer");
                     }
                     cb.onCallback();
                 }).addOnFailureListener(e -> {
-                    Log.e(TAG, "Error loading buyer", e);
+                    Log.e(TAG, "Error loading buyer details", e);
+                    tvBuyerNameHeader.setText("Buyer");
                     cb.onCallback();
                 });
     }
 
     private void loadPropertyDetailsForCard() {
         cardOfferViewPropertySeller.setVisibility(View.VISIBLE);
-        db.collection("properties").document(propertyId)
+        db.collection("Properties").document(propertyId)
                 .get().addOnSuccessListener(doc -> {
                     Property p = doc.toObject(Property.class);
                     if (p != null) {
-                        propertyName = TextUtils.isEmpty(propertyName) ? p.getTitle() : propertyName;
-                        tvPropertyTitleCardSeller   .setText(p.getTitle());
-                        tvPropertyPriceCardSeller   .setText(p.getPrice());
+                        propertyNameForDisplay = p.getName();
+                        tvPropertyTitleCardSeller.setText(p.getName());
+                        tvPropertyPriceCardSeller.setText(p.getPrice());
                         tvPropertyLocationCardSeller.setText(p.getLocation());
-                        String img = (p.getImageUrls()!=null && !p.getImageUrls().isEmpty())
-                                ? p.getImageUrls().get(0)
-                                : p.getImageUrl();
+                        String img = p.getPrimaryImageUrl();
                         if (!TextUtils.isEmpty(img)) {
                             Glide.with(this).load(img)
                                     .placeholder(R.drawable.placeholder_image)
+                                    .error(R.drawable.placeholder_image)
                                     .into(imgHousePropertyCardSeller);
+                        } else {
+                            imgHousePropertyCardSeller.setImageResource(R.drawable.placeholder_image);
                         }
+                    } else {
+                        propertyNameForDisplay = !TextUtils.isEmpty(propertyNameFromIntent) ? propertyNameFromIntent : "Property Inquiry";
+                        tvPropertyTitleCardSeller.setText(propertyNameForDisplay);
                     }
                     createOrUpdateChatSessionMetadata();
                 }).addOnFailureListener(e -> {
-                    Log.e(TAG, "Error loading property card", e);
+                    Log.e(TAG, "Error loading property card details", e);
                     cardOfferViewPropertySeller.setVisibility(View.GONE);
+                    propertyNameForDisplay = !TextUtils.isEmpty(propertyNameFromIntent) ? propertyNameFromIntent : "Property Inquiry";
                     createOrUpdateChatSessionMetadata();
                 });
     }
 
     private void setupChatRecyclerViewSeller() {
         messageListSeller   = new ArrayList<>();
-        messageAdapterSeller= new MessageAdapter(this, messageListSeller);
+        // Corrected: MessageAdapter constructor now expects (Context, List<Message>, String currentUserId)
+        messageAdapterSeller = new MessageAdapter(this, messageListSeller, currentFirebaseUser.getUid());
         recyclerViewMessagesChatSeller.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerViewMessagesChatSeller.setAdapter(messageAdapterSeller);
@@ -241,21 +252,25 @@ public class Chat_Seller extends AppCompatActivity {
 
     private void listenToMessages() {
         if (chatId.startsWith("error_")) return;
-        CollectionReference msgs = db.collection("chats")
+        CollectionReference msgsRef = db.collection("chats")
                 .document(chatId).collection("messages");
-        messagesListenerRegistrationSeller = msgs.orderBy("timestamp", Query.Direction.ASCENDING)
-                .addSnapshotListener((snap, e) -> {
+        messagesListenerRegistrationSeller = msgsRef.orderBy("timestamp", Query.Direction.ASCENDING)
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
                     if (e != null) {
                         Log.e(TAG, "Messages listen failed", e);
                         Toast.makeText(this, "Failed to load messages.", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    messageListSeller.clear();
-                    for (Message m : snap.toObjects(Message.class)) {
-                        messageListSeller.add(m);
+                    if (queryDocumentSnapshots != null) {
+                        messageListSeller.clear();
+                        for (Message m : queryDocumentSnapshots.toObjects(Message.class)) {
+                            messageListSeller.add(m);
+                        }
+                        messageAdapterSeller.notifyDataSetChanged();
+                        if (!messageListSeller.isEmpty()) {
+                            recyclerViewMessagesChatSeller.smoothScrollToPosition(messageListSeller.size() - 1);
+                        }
                     }
-                    messageAdapterSeller.notifyDataSetChanged();
-                    recyclerViewMessagesChatSeller.smoothScrollToPosition(messageListSeller.size()-1);
                 });
     }
 
@@ -265,99 +280,111 @@ public class Chat_Seller extends AppCompatActivity {
             Toast.makeText(this, "Cannot send empty message", Toast.LENGTH_SHORT).show();
             return;
         }
+        if (currentFirebaseUser == null || TextUtils.isEmpty(buyerId)) {
+            Toast.makeText(this, "Cannot send message. User info missing.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        Message m = new Message(currentFirebaseUser.getUid(), buyerId, text);
+        // Corrected: Message constructor now expects (senderId, receiverId, text, timestamp as Date)
+        Message newMessage = new Message(currentFirebaseUser.getUid(), buyerId, text, new Date());
         db.collection("chats").document(chatId).collection("messages")
-                .add(m).addOnSuccessListener(doc -> {
+                .add(newMessage).addOnSuccessListener(docRef -> {
                     etMessageInputSeller.setText("");
                     updateChatSessionMetadataOnSend(text);
-                    Log.d(TAG, "Message sent successfully");
+                    Log.d(TAG, "Message sent successfully by seller");
                 }).addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to send message", e);
+                    Log.e(TAG, "Failed to send message by seller", e);
                     Toast.makeText(this, "Failed to send message.", Toast.LENGTH_SHORT).show();
                 });
     }
 
     private void createOrUpdateChatSessionMetadata() {
-        DocumentReference sellerSession = db.collection("users")
+        if (currentFirebaseUser == null || TextUtils.isEmpty(buyerId) || buyerDetails == null) {
+            Log.e(TAG, "Cannot create/update chat session metadata: missing user details.");
+            return;
+        }
+
+        DocumentReference sellerSessionRef = db.collection("users")
                 .document(currentFirebaseUser.getUid())
                 .collection("chat_sessions").document(chatId);
 
         Map<String,Object> data = new HashMap<>();
         data.put("otherUserId", buyerId);
-        data.put("senderName", buyerDetails.getName());
+        data.put("otherUserName", buyerDetails.getName());
         if (!TextUtils.isEmpty(propertyId)) data.put("propertyId", propertyId);
-        data.put("propertyName", TextUtils.isEmpty(propertyName) ? "General Inquiry" : propertyName);
+        data.put("propertyName", TextUtils.isEmpty(propertyNameForDisplay) ? "General Inquiry" : propertyNameForDisplay);
         data.put("offerStatus", "pending");
         data.put("conversationClosed", false);
         data.put("unreadCount", 0);
+        data.put("timestamp", FieldValue.serverTimestamp());
 
-        sellerSession.set(data, SetOptions.merge())
-                .addOnFailureListener(e -> Log.e(TAG, "Meta create/update fail", e));
+        sellerSessionRef.set(data, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Seller chat session metadata created/updated."))
+                .addOnFailureListener(e -> Log.e(TAG, "Seller chat session metadata update failed.", e));
+
+        if (currentSellerDetails != null) {
+            DocumentReference buyerSessionRef = db.collection("users")
+                    .document(buyerId)
+                    .collection("chat_sessions").document(chatId);
+            Map<String, Object> buyerMetadata = new HashMap<>(data);
+            buyerMetadata.put("otherUserId", currentFirebaseUser.getUid());
+            buyerMetadata.put("otherUserName", currentSellerDetails.getName());
+            buyerSessionRef.set(buyerMetadata, SetOptions.merge())
+                    .addOnSuccessListener(aVoid -> Log.d(TAG, "Buyer chat session metadata also updated for consistency."))
+                    .addOnFailureListener(e -> Log.e(TAG, "Buyer chat session metadata update consistency failed.", e));
+        }
     }
 
 
     private void updateChatSessionMetadataOnSend(String lastMessage) {
-        if (currentSellerDetails == null || TextUtils.isEmpty(buyerId)) {
-            Log.e(TAG, "Cannot update chat metadata: missing user details");
+        if (currentSellerDetails == null || TextUtils.isEmpty(buyerId) || buyerDetails == null) {
+            Log.e(TAG, "Cannot update chat metadata on send: missing user details");
             return;
         }
 
-        String sellerName = currentSellerDetails.getName();
-        String buyerName = buyerDetails != null ? buyerDetails.getName() : "Buyer";
+        String effectivePropertyName = TextUtils.isEmpty(propertyNameForDisplay) ? "General Inquiry" : propertyNameForDisplay;
 
-        Map<String, Object> common = new HashMap<>();
-        common.put("lastMessage", lastMessage);
-        common.put("timestamp", FieldValue.serverTimestamp());
-
-        // Add property information if available
-        if (!TextUtils.isEmpty(propertyId)) {
-            common.put("propertyId", propertyId);
-        }
-        if (!TextUtils.isEmpty(propertyName)) {
-            common.put("propertyName", propertyName);
-        }
-
-        // Update seller's own session
         DocumentReference sellerSessionRef = db.collection("users")
                 .document(currentFirebaseUser.getUid())
                 .collection("chat_sessions").document(chatId);
-
-        Map<String, Object> sellerData = new HashMap<>(common);
-        sellerData.put("senderName", buyerName);
+        Map<String, Object> sellerData = new HashMap<>();
+        sellerData.put("lastMessage", lastMessage);
+        sellerData.put("timestamp", FieldValue.serverTimestamp());
         sellerData.put("otherUserId", buyerId);
+        sellerData.put("otherUserName", buyerDetails.getName());
+        sellerData.put("propertyName", effectivePropertyName);
+        if (!TextUtils.isEmpty(propertyId)) sellerData.put("propertyId", propertyId);
         sellerData.put("unreadCount", 0);
 
         sellerSessionRef.set(sellerData, SetOptions.merge())
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Seller session updated successfully"))
-                .addOnFailureListener(e -> Log.e(TAG, "Seller session update failed", e));
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Seller session updated successfully on send"))
+                .addOnFailureListener(e -> Log.e(TAG, "Seller session update failed on send", e));
 
-        // Update buyer's session so they see the new message
         DocumentReference buyerSessionRef = db.collection("users")
                 .document(buyerId)
                 .collection("chat_sessions").document(chatId);
-
-        Map<String, Object> buyerData = new HashMap<>(common);
-        buyerData.put("senderName", sellerName);
+        Map<String, Object> buyerData = new HashMap<>();
+        buyerData.put("lastMessage", lastMessage);
+        buyerData.put("timestamp", FieldValue.serverTimestamp());
         buyerData.put("otherUserId", currentFirebaseUser.getUid());
+        buyerData.put("otherUserName", currentSellerDetails.getName());
+        buyerData.put("propertyName", effectivePropertyName);
+        if (!TextUtils.isEmpty(propertyId)) buyerData.put("propertyId", propertyId);
         buyerData.put("unreadCount", FieldValue.increment(1));
 
         buyerSessionRef.set(buyerData, SetOptions.merge())
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Buyer session updated successfully"))
-                .addOnFailureListener(e -> Log.e(TAG, "Buyer session update failed", e));
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Buyer session updated successfully for received message"))
+                .addOnFailureListener(e -> Log.e(TAG, "Buyer session update failed for received message", e));
     }
 
 
     private void handleOffer(String status) {
         String offerMsg = "Seller has " + status + " the offer on “"
-                + (TextUtils.isEmpty(propertyName) ? "this property" : propertyName) + "”.";
-        DocumentReference sellerSess = db.collection("users")
+                + (TextUtils.isEmpty(propertyNameForDisplay) ? "this property" : propertyNameForDisplay) + "”.";
+
+        DocumentReference sellerSessRef = db.collection("users")
                 .document(currentFirebaseUser.getUid())
                 .collection("chat_sessions").document(chatId);
-        DocumentReference buyerSess  = db.collection("users")
-                .document(buyerId)
-                .collection("chat_sessions").document(chatId);
-
         Map<String,Object> updSeller = new HashMap<>();
         updSeller.put("offerStatus", status);
         updSeller.put("conversationClosed", true);
@@ -365,25 +392,30 @@ public class Chat_Seller extends AppCompatActivity {
         updSeller.put("timestamp", FieldValue.serverTimestamp());
         updSeller.put("unreadCount", 0);
 
-        sellerSess.set(updSeller, SetOptions.merge())
+        sellerSessRef.set(updSeller, SetOptions.merge())
                 .addOnSuccessListener(a -> {
                     Toast.makeText(this, "Offer " + status, Toast.LENGTH_SHORT).show();
 
+                    DocumentReference buyerSessRef  = db.collection("users")
+                            .document(buyerId)
+                            .collection("chat_sessions").document(chatId);
                     Map<String,Object> updBuyer = new HashMap<>(updSeller);
-                    updBuyer.put("senderName", currentSellerDetails.getName());
+                    updBuyer.put("otherUserId", currentFirebaseUser.getUid());
+                    if (currentSellerDetails != null) {
+                        updBuyer.put("otherUserName", currentSellerDetails.getName());
+                    }
                     updBuyer.put("unreadCount", FieldValue.increment(1));
 
-                    buyerSess.set(updBuyer, SetOptions.merge())
-                            .addOnFailureListener(e -> Log.e(TAG, "Buyer offer update failed", e));
+                    buyerSessRef.set(updBuyer, SetOptions.merge())
+                            .addOnFailureListener(e -> Log.e(TAG, "Buyer offer session update failed", e));
 
-                    // log a system message in chat history
-                    Message sys = new Message(currentFirebaseUser.getUid(), buyerId,
-                            offerMsg + " (system)");
+                    // Corrected: Message constructor now expects (senderId, receiverId, text, timestamp as Date)
+                    Message sysMessage = new Message(currentFirebaseUser.getUid(), buyerId, offerMsg + " (system notification)", new Date());
                     db.collection("chats").document(chatId).collection("messages")
-                            .add(sys)
-                            .addOnFailureListener(e -> Log.e(TAG, "Failed to log system message", e));
+                            .add(sysMessage)
+                            .addOnFailureListener(e -> Log.e(TAG, "Failed to log system message for offer", e));
                 })
-                .addOnFailureListener(e -> Log.e(TAG, "Seller offer update failed", e));
+                .addOnFailureListener(e -> Log.e(TAG, "Seller offer session update failed", e));
     }
 
     private void listenToChatSessionStatusSeller() {
@@ -393,15 +425,16 @@ public class Chat_Seller extends AppCompatActivity {
 
         chatSessionStatusListenerSeller = statusRef.addSnapshotListener((snap, e) -> {
             if (e != null) {
-                Log.e(TAG, "Session status listener fail", e);
+                Log.e(TAG, "Session status listener failed", e);
                 return;
             }
             if (snap != null && snap.exists()) {
                 Boolean closed = snap.getBoolean("conversationClosed");
-                String offerS = snap.getString("offerStatus");
-                // update UI buttons accordingly…
-                etMessageInputSeller.setEnabled(!Boolean.TRUE.equals(closed));
-                btnSendMessageActionSeller.setEnabled(!Boolean.TRUE.equals(closed));
+                boolean isConversationClosed = Boolean.TRUE.equals(closed);
+                etMessageInputSeller.setEnabled(!isConversationClosed);
+                btnSendMessageActionSeller.setEnabled(!isConversationClosed);
+                btnAcceptOfferAction.setEnabled(!isConversationClosed);
+                btnDeclineOfferAction.setEnabled(!isConversationClosed);
             }
         });
     }

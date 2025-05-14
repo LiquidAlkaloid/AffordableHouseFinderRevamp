@@ -4,30 +4,26 @@ import com.google.firebase.firestore.ServerTimestamp;
 import java.util.Date;
 
 public class Message {
-    private String messageId;
     private String senderId;
-    private String receiverId; // ID of the recipient
+    private String receiverId;
     private String text;
-    @ServerTimestamp
-    private Date timestamp;
-    private boolean isRead; // Optional: for read receipts
+    private @ServerTimestamp Date timestamp; // Firestore will populate this if null, or use client's Date
+    private boolean read; // To track if the message has been read by the receiver
 
-    // Required empty public constructor for Firestore
-    public Message() {}
+    // Required empty public constructor for Firestore deserialization
+    public Message() {
+    }
 
-    public Message(String senderId, String receiverId, String text) {
+    // Constructor used in Chat_Seller.java and Chat_Buyer.java
+    public Message(String senderId, String receiverId, String text, Date timestamp) {
         this.senderId = senderId;
         this.receiverId = receiverId;
         this.text = text;
-        // timestamp is set by @ServerTimestamp
-        this.isRead = false; // Default to unread
+        this.timestamp = timestamp; // Client provides the timestamp
+        this.read = false; // Default to unread
     }
 
     // Getters
-    public String getMessageId() {
-        return messageId;
-    }
-
     public String getSenderId() {
         return senderId;
     }
@@ -45,14 +41,10 @@ public class Message {
     }
 
     public boolean isRead() {
-        return isRead;
+        return read;
     }
 
-    // Setters
-    public void setMessageId(String messageId) {
-        this.messageId = messageId;
-    }
-
+    // Setters (useful for Firestore and potentially client-side updates)
     public void setSenderId(String senderId) {
         this.senderId = senderId;
     }
@@ -70,6 +62,6 @@ public class Message {
     }
 
     public void setRead(boolean read) {
-        isRead = read;
+        this.read = read;
     }
 }

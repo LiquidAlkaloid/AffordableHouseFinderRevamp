@@ -144,6 +144,13 @@
 
     <color name="timestamp_color_sent">#B0BEC5</color>
 
+    <color name="button_yellow">#FFC107</color>
+    <color name="button_orange">#FF9800</color>
+    <color name="button_green">#4CAF50</color>
+    <color name="status_available_green">#388E3C</color>
+    <color name="status_reserved_orange">#F57C00</color>
+    <color name="status_taken_red">#D32F2F</color>     ```
+
 
 
 </resources>

@@ -1,95 +1,126 @@
 package com.example.affordablehousefinderrevamp.Model;
 
-import com.google.firebase.firestore.DocumentId;
-import com.google.firebase.firestore.Exclude;
-import com.google.firebase.firestore.ServerTimestamp;
-import java.util.Date;
+import com.google.firebase.firestore.ServerTimestamp; // For @ServerTimestamp if you want Firestore to manage it
+import java.util.Date; // Required for @ServerTimestamp
 import java.util.List;
-import java.util.ArrayList; // Added for initializing imageUrls
+import java.util.Map;
 
 public class Property {
-    @DocumentId
-    private String propertyId;
 
-    private String title;
+    // Constants for property status
+    public static final String STATUS_AVAILABLE = "Available";
+    public static final String STATUS_RESERVED = "Reserved";
+    public static final String STATUS_TAKEN = "Taken";
+
+    private String name; // Used as title
     private String location;
     private String price;
     private String description;
-    private String imageUrl; // Can be the primary image URL or the first from imageUrls
-    private List<String> imageUrls; // List of image URLs (e.g., direct HTTPS links or file:// URIs for local cache)
-    private String sellerId;
     private String propertyType;
-    private int bedrooms;
-    private int bathrooms;
+    private String numBedrooms; // Kept as String to match EditText inputs and existing usage
+    private String numBathrooms; // Kept as String
     private String area;
+    private List<String> imageUrls; // List of image URI strings
+    private String sellerId;
+    private String sellerName;
+    private String sellerContact;
+    private String propertyId; // Firestore document ID
     private String status;
+    private Map<String, Boolean> amenities;
+    private @ServerTimestamp Date timestamp; // Firestore server-side timestamp. Getter returns Date.
+    private String videoUrl;
 
-    @ServerTimestamp
-    private Date timestamp; // Handles creation/update time by Firestore
-
-    @Exclude
-    private boolean isBookmarked;
-
+    // Required default constructor for Firebase/Firestore
     public Property() {
-        // Firestore requires a no-argument constructor
-        this.status = "Available"; // Default status
-        this.imageUrls = new ArrayList<>(); // Initialize the list
+        this.status = STATUS_AVAILABLE; // Default status
+        // Timestamp will be set by Firestore or in the setters/constructors
     }
 
-    // Constructor for creating a new property
-    public Property(String title, String location, String price, String description,
-                    String imageUrl, List<String> imageUrls, String sellerId, String propertyType,
-                    int bedrooms, int bathrooms, String area, String status) {
-        this.title = title;
+    // Constructor used in UploadActivity
+    public Property(String name, String location, String price, String description,
+                    List<String> imageUrls, String sellerId, String propertyType,
+                    String numBedrooms, String numBathrooms, String area, String status) {
+        this.name = name;
         this.location = location;
         this.price = price;
         this.description = description;
-        this.imageUrl = imageUrl; // This could be the first image from imageUrls or a separate primary image
-        this.imageUrls = (imageUrls != null) ? imageUrls : new ArrayList<>(); // Ensure list is initialized
+        this.imageUrls = imageUrls;
         this.sellerId = sellerId;
         this.propertyType = propertyType;
-        this.bedrooms = bedrooms;
-        this.bathrooms = bathrooms;
+        this.numBedrooms = numBedrooms;
+        this.numBathrooms = numBathrooms;
         this.area = area;
-        this.status = (status != null && !status.isEmpty()) ? status : "Available";
-        // Timestamp is set by @ServerTimestamp
+        this.status = (status != null && !status.isEmpty()) ? status : STATUS_AVAILABLE;
+        // this.timestamp = new Date(); // Or rely on @ServerTimestamp
     }
 
 
-    // Getters
-    public String getPropertyId() { return propertyId; }
-    public String getTitle() { return title; }
+    // Getters and Setters
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
     public String getLocation() { return location; }
-    public String getPrice() { return price; }
-    public String getDescription() { return description; }
-    public String getImageUrl() { return imageUrl; } // Main/cover image
-    public List<String> getImageUrls() { return imageUrls; } // Gallery images
-    public String getSellerId() { return sellerId; }
-    public String getPropertyType() { return propertyType; }
-    public int getBedrooms() { return bedrooms; }
-    public int getBathrooms() { return bathrooms; }
-    public String getArea() { return area; }
-    public String getStatus() { return status; }
-    public Date getTimestamp() { return timestamp; }
-
-    @Exclude
-    public boolean isBookmarked() { return isBookmarked; }
-
-    // Setters
-    public void setPropertyId(String propertyId) { this.propertyId = propertyId; }
-    public void setTitle(String title) { this.title = title; }
     public void setLocation(String location) { this.location = location; }
+
+    public String getPrice() { return price; }
     public void setPrice(String price) { this.price = price; }
+
+    public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
-    public void setImageUrls(List<String> imageUrls) { this.imageUrls = (imageUrls != null) ? imageUrls : new ArrayList<>(); }
-    public void setSellerId(String sellerId) { this.sellerId = sellerId; }
+
+    public String getPropertyType() { return propertyType; }
     public void setPropertyType(String propertyType) { this.propertyType = propertyType; }
-    public void setBedrooms(int bedrooms) { this.bedrooms = bedrooms; }
-    public void setBathrooms(int bathrooms) { this.bathrooms = bathrooms; }
+
+    public String getNumBedrooms() { return numBedrooms; }
+    public void setNumBedrooms(String numBedrooms) { this.numBedrooms = numBedrooms; }
+
+    public String getNumBathrooms() { return numBathrooms; }
+    public void setNumBathrooms(String numBathrooms) { this.numBathrooms = numBathrooms; }
+
+    public String getArea() { return area; }
     public void setArea(String area) { this.area = area; }
+
+    public List<String> getImageUrls() { return imageUrls; }
+    public void setImageUrls(List<String> imageUrls) { this.imageUrls = imageUrls; }
+
+    // Convenience getter for a single image URL (e.g., the first one for display)
+    public String getPrimaryImageUrl() {
+        if (imageUrls != null && !imageUrls.isEmpty()) {
+            return imageUrls.get(0);
+        }
+        return null; // Or a placeholder URL string
+    }
+
+    public String getSellerId() { return sellerId; }
+    public void setSellerId(String sellerId) { this.sellerId = sellerId; }
+
+    public String getSellerName() { return sellerName; }
+    public void setSellerName(String sellerName) { this.sellerName = sellerName; }
+
+    public String getSellerContact() { return sellerContact; }
+    public void setSellerContact(String sellerContact) { this.sellerContact = sellerContact; }
+
+    public String getPropertyId() { return propertyId; }
+    public void setPropertyId(String propertyId) { this.propertyId = propertyId; }
+
+    public String getStatus() {
+        if (status == null || status.isEmpty()) {
+            return STATUS_AVAILABLE; // Default to available if status is not set
+        }
+        return status;
+    }
     public void setStatus(String status) { this.status = status; }
-    public void setTimestamp(Date timestamp) { this.timestamp = timestamp; } // Allow setting for specific cases like preserving original on edit
-    @Exclude
-    public void setBookmarked(boolean bookmarked) { isBookmarked = bookmarked; }
+
+    public Map<String, Boolean> getAmenities() { return amenities; }
+    public void setAmenities(Map<String, Boolean> amenities) { this.amenities = amenities; }
+
+    public Date getTimestamp() { return timestamp; } // Getter for @ServerTimestamp
+    public void setTimestamp(Date timestamp) { this.timestamp = timestamp; } // Setter for @ServerTimestamp
+
+    public String getVideoUrl() { return videoUrl; }
+    public void setVideoUrl(String videoUrl) { this.videoUrl = videoUrl; }
+
+    public String getImageUrl() {
+        return null;
+    }
 }

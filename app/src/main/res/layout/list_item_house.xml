@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="15dp"
-    app:cardElevation="4dp"
-    android:layout_marginStart="8dp"
-    android:layout_marginEnd="8dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginBottom="8dp"
-    app:cardBackgroundColor="@color/white">
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,94 +16,73 @@
         <ImageView
             android:id="@+id/house_image"
             android:layout_width="match_parent"
-            android:layout_height="160dp"
+            android:layout_height="180dp"
             android:scaleType="centerCrop"
-            tools:srcCompat="@drawable/placeholder_image"
-            android:background="@color/placeholder_image_bg"
-            android:layout_marginBottom="12dp"
-            android:contentDescription="@string/house_image_description2" />
-
-        <TextView
-            android:id="@+id/house_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="Spacious Modern Villa"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:layout_marginBottom="4dp"/>
-
-        <TextView
-            android:id="@+id/house_price"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="PHP 25,000,000"
-            android:textSize="16sp"
-            android:textColor="@color/text_primary_color"
-            android:layout_marginBottom="4dp"/>
+            android:src="@drawable/placeholder_image" /> <TextView
+        android:id="@+id/house_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="House Name"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
         <TextView
             android:id="@+id/house_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="Prime Location, Baguio City"
-            android:textSize="14sp"
-            android:textColor="@color/grey_text"
-            android:layout_marginBottom="8dp"/>
+            android:text="Location"
+            android:textAppearance="?attr/textAppearanceBody2"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/house_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Price: ₱0.00"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textColor="@color/design_default_color_primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/house_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="STATUS: AVAILABLE"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@color/status_available_color"
-            android:layout_marginBottom="12dp"/>
+            android:layout_marginTop="4dp"
+            android:text="Status: Available"
+            android:textAppearance="?attr/textAppearanceBody1"
+            android:textSize="15sp"
+            android:textStyle="italic"/>
 
         <LinearLayout
-            android:id="@+id/seller_action_buttons_layout"
+            android:id="@+id/seller_actions_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <Button
-                android:id="@+id/button_edit_listing"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/edit_listing_button"
-                app:backgroundTint="@color/chargit_yellow_button"
-                android:textColor="@color/black"
-                android:textSize="12sp"
-                android:layout_marginEnd="4dp"/>
-
-            <Button
-                android:id="@+id/button_already_listed"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/change_status_button"
-                app:backgroundTint="@color/chargit_blue_button"
-                android:textColor="@color/white"
-                android:textSize="12sp"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"/>
+            android:layout_marginTop="12dp"
+            android:visibility="gone"> <Button
+            android:id="@+id/button_already_listed"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Change Status"
+            android:layout_marginEnd="4dp"
+            android:textAllCaps="false"/>
 
             <Button
                 android:id="@+id/button_remove_listing"
-                style="?android:attr/buttonBarButtonStyle"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:textColor="@android:color/holo_red_dark"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/remove_listing_button"
-                app:backgroundTint="@color/chargit_red_button"
-                android:textColor="@color/white"
-                android:textSize="12sp"
-                android:layout_marginStart="4dp"/>
+                android:text="Remove Listing"
+                android:layout_marginStart="4dp"
+                android:textAllCaps="false"/>
         </LinearLayout>
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>

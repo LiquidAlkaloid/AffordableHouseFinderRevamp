@@ -5,7 +5,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.FileProvider;
+// import androidx.core.content.FileProvider; // Not used if only caching locally
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,7 +15,7 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
+// import android.os.Environment; // Not strictly needed for app-specific cache
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
@@ -31,6 +31,9 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+// import com.google.firebase.storage.FirebaseStorage; // Not using Firebase Storage for images
+// import com.google.firebase.storage.StorageReference; // Not using Firebase Storage for images
+// import com.google.firebase.storage.UploadTask; // Not using Firebase Storage for images
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -58,10 +61,8 @@ public class UploadActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private CollectionReference propertiesCollection;
 
-    // imageUris is for the GalleryImageAdapter to display previews using local file:// URIs of cached images
-    private ArrayList<Uri> imageUris;
-    // imageStringsForFirestore will store Uri.toString() of these file:// URIs for saving to Firestore.
-    private ArrayList<String> imageStringsForFirestore;
+    private ArrayList<Uri> imageUrisForAdapter; // Holds Uris for GalleryImageAdapter (can be content:// or file://)
+    private ArrayList<String> imageStringsForFirestore; // Holds String representations of file:// Uris after caching
 
     private GalleryImageAdapter galleryImageAdapter;
     private ProgressDialog progressDialog;
@@ -81,7 +82,6 @@ public class UploadActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        // Initialize UI elements
         editTextTitle = findViewById(R.id.editTextTitle);
         editTextLocation = findViewById(R.id.editTextLocation);
         editTextPrice = findViewById(R.id.editTextPrice);
@@ -103,30 +103,25 @@ public class UploadActivity extends AppCompatActivity {
 
         firebaseAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        propertiesCollection = db.collection("properties");
+        propertiesCollection = db.collection("Properties"); // Corrected collection name to match adapter
 
-        imageUris = new ArrayList<>();
+        imageUrisForAdapter = new ArrayList<>();
         imageStringsForFirestore = new ArrayList<>();
 
-        galleryImageAdapter = new GalleryImageAdapter(this, imageUris, (uriToRemove, position) -> {
-            if (position >= 0 && position < imageUris.size()) {
-                Uri removedUri = imageUris.remove(position);
-                if (removedUri != null) {
-                    imageStringsForFirestore.remove(removedUri.toString());
-                    // Optionally, delete the cached file if it's a file URI from our cache
-                    if ("file".equals(removedUri.getScheme())) {
-                        File fileToDelete = new File(removedUri.getPath());
-                        if (fileToDelete.exists()) {
-                            if (fileToDelete.delete()) {
-                                Log.d(TAG, "Cached image file deleted: " + removedUri.getPath());
-                            } else {
-                                Log.w(TAG, "Failed to delete cached image file: " + removedUri.getPath());
-                            }
-                        }
-                    }
+        galleryImageAdapter = new GalleryImageAdapter(this, imageUrisForAdapter, (uriToRemove, position) -> {
+            if (position >= 0 && position < imageUrisForAdapter.size()) {
+                Uri removedAdapterUri = imageUrisForAdapter.remove(position);
+                // Also remove from imageStringsForFirestore if it was a cached file URI string
+                if (removedAdapterUri != null && "file".equals(removedAdapterUri.getScheme())) {
+                    imageStringsForFirestore.remove(removedAdapterUri.toString());
+                } else if (removedAdapterUri != null) {
+                    // If it was a content URI, it might not be in imageStringsForFirestore directly
+                    // This part needs careful handling if you mix original and cached URIs
+                    Log.w(TAG, "Removed a non-file URI from adapter, ensure consistency with Firestore strings: " + removedAdapterUri);
                 }
+
                 galleryImageAdapter.notifyItemRemoved(position);
-                galleryImageAdapter.notifyItemRangeChanged(position, imageUris.size());
+                galleryImageAdapter.notifyItemRangeChanged(position, imageUrisForAdapter.size());
                 Toast.makeText(UploadActivity.this, getString(R.string.image_removed), Toast.LENGTH_SHORT).show();
             }
         });
@@ -164,6 +159,7 @@ public class UploadActivity extends AppCompatActivity {
                     if (documentSnapshot.exists()) {
                         propertyToEdit = documentSnapshot.toObject(Property.class);
                         if (propertyToEdit != null) {
+                            propertyToEdit.setPropertyId(documentSnapshot.getId()); // Ensure ID is set
                             populateFieldsForEditing();
                         } else {
                             Toast.makeText(UploadActivity.this, "Error converting property data.", Toast.LENGTH_SHORT).show();
@@ -184,25 +180,31 @@ public class UploadActivity extends AppCompatActivity {
 
     private void populateFieldsForEditing() {
         if (propertyToEdit == null) return;
-        editTextTitle.setText(propertyToEdit.getTitle());
+        editTextTitle.setText(propertyToEdit.getName()); // Corrected to getName
         editTextLocation.setText(propertyToEdit.getLocation());
         editTextPrice.setText(propertyToEdit.getPrice());
         editTextDescription.setText(propertyToEdit.getDescription());
         editTextPropertyType.setText(propertyToEdit.getPropertyType());
-        editTextBedrooms.setText(String.valueOf(propertyToEdit.getBedrooms()));
-        editTextBathrooms.setText(String.valueOf(propertyToEdit.getBathrooms()));
+        editTextBedrooms.setText(propertyToEdit.getNumBedrooms()); // Corrected
+        editTextBathrooms.setText(propertyToEdit.getNumBathrooms()); // Corrected
         editTextArea.setText(propertyToEdit.getArea());
 
-        imageUris.clear();
+        imageUrisForAdapter.clear();
         imageStringsForFirestore.clear();
         if (propertyToEdit.getImageUrls() != null && !propertyToEdit.getImageUrls().isEmpty()) {
             for (String uriString : propertyToEdit.getImageUrls()) {
                 if (uriString == null || uriString.isEmpty()) continue;
                 try {
-                    // Assuming these are file:// URIs from previous saves or content:// URIs from older versions
                     Uri parsedUri = Uri.parse(uriString);
-                    imageUris.add(parsedUri);
-                    imageStringsForFirestore.add(uriString);
+                    imageUrisForAdapter.add(parsedUri); // Add to adapter list
+                    // Assuming these are already file:// URIs from previous saves
+                    if ("file".equals(parsedUri.getScheme())) {
+                        imageStringsForFirestore.add(uriString);
+                    } else {
+                        // If it's a content URI from an older version, it should be re-cached
+                        // For simplicity, we'll assume they are file URIs or need re-selection
+                        Log.w(TAG, "Non-file URI found during edit: " + uriString + ". Consider re-caching or user re-selection.");
+                    }
                 } catch (Exception e) {
                     Log.e(TAG, getString(R.string.error_parsing_image_uri) + ": '" + uriString + "'", e);
                 }
@@ -215,7 +217,7 @@ public class UploadActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // Request read permission
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         activityResultLauncher.launch(Intent.createChooser(intent, getString(R.string.select_pictures)));
     }
 
@@ -224,48 +226,53 @@ public class UploadActivity extends AppCompatActivity {
                 if (result.getResultCode() == Activity.RESULT_OK) {
                     Intent data = result.getData();
                     if (data != null) {
-                        imageUris.clear();
+                        // Clear previous selections before adding new ones if that's the desired behavior
+                        // If appending, remove these clear() calls. For editing, usually replace.
+                        imageUrisForAdapter.clear();
                         imageStringsForFirestore.clear();
 
                         List<Uri> urisToProcess = new ArrayList<>();
-                        if (data.getClipData() != null) { // Multiple images selected
+                        if (data.getClipData() != null) {
                             ClipData clipData = data.getClipData();
                             for (int i = 0; i < clipData.getItemCount(); i++) {
                                 urisToProcess.add(clipData.getItemAt(i).getUri());
                             }
-                        } else if (data.getData() != null) { // Single image selected
+                        } else if (data.getData() != null) {
                             urisToProcess.add(data.getData());
                         }
 
                         if (!urisToProcess.isEmpty()) {
                             progressDialog.setMessage("Processing images...");
                             progressDialog.show();
-                            // Process URIs (copy to cache) on a background thread if it's time-consuming
                             new Thread(() -> {
                                 for (Uri uri : urisToProcess) {
                                     if (uri != null) {
-                                        // Attempt to take persistable permission (might not always be needed if immediately copying)
                                         try {
-                                            getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                            // Persist permission for content URIs
+                                            if ("content".equals(uri.getScheme())) {
+                                                getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                            }
                                         } catch (SecurityException e) {
                                             Log.w(TAG, "Failed to take persistable URI permission (might be normal for some URIs): " + uri.toString(), e);
                                         }
                                         Uri cachedFileUri = copyUriToInternalCache(uri);
                                         if (cachedFileUri != null) {
-                                            imageUris.add(cachedFileUri);
-                                            imageStringsForFirestore.add(cachedFileUri.toString());
+                                            // Run on UI thread because these lists are bound to the adapter
+                                            runOnUiThread(() -> {
+                                                imageUrisForAdapter.add(cachedFileUri); // For adapter display
+                                                imageStringsForFirestore.add(cachedFileUri.toString()); // For Firestore
+                                            });
                                         } else {
                                             Log.w(TAG, "Failed to cache image: " + uri.toString());
-                                            // Optionally show a toast on the UI thread for the failed image
                                             runOnUiThread(()-> Toast.makeText(UploadActivity.this, "Failed to process one image", Toast.LENGTH_SHORT).show());
                                         }
                                     }
                                 }
                                 runOnUiThread(() -> {
                                     dismissProgressDialog();
-                                    galleryImageAdapter.notifyDataSetChanged();
-                                    if (!imageUris.isEmpty()) {
-                                        Toast.makeText(this, getString(R.string.images_selected, imageUris.size()), Toast.LENGTH_SHORT).show();
+                                    galleryImageAdapter.notifyDataSetChanged(); // Notify after all processing
+                                    if (!imageUrisForAdapter.isEmpty()) {
+                                        Toast.makeText(this, getString(R.string.images_selected, imageUrisForAdapter.size()), Toast.LENGTH_SHORT).show();
                                     } else if (!urisToProcess.isEmpty()){
                                         Toast.makeText(this, "Failed to process selected images.", Toast.LENGTH_LONG).show();
                                     }
@@ -282,29 +289,22 @@ public class UploadActivity extends AppCompatActivity {
                 Log.e(TAG, "Failed to open input stream for URI: " + sourceUri);
                 return null;
             }
-
-            // Create a file in the app's cache directory
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
             String imageFileName = "JPEG_" + timeStamp + "_" + UUID.randomUUID().toString().substring(0, 6);
-            File cacheDir = getApplicationContext().getCacheDir(); // Or getExternalCacheDir()
+            File cacheDir = getApplicationContext().getCacheDir();
             File outputFile = new File(cacheDir, imageFileName + ".jpg");
 
             try (OutputStream outputStream = new FileOutputStream(outputFile)) {
-                byte[] buffer = new byte[1024 * 4]; // 4KB buffer
+                byte[] buffer = new byte[1024 * 4];
                 int bytesRead;
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
                     outputStream.write(buffer, 0, bytesRead);
                 }
                 Log.d(TAG, "Image copied to cache: " + outputFile.getAbsolutePath());
-                // For FileProvider, if you were to share this URI outside your app (not needed for Glide internal use)
-                // return FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", outputFile);
-                return Uri.fromFile(outputFile); // Glide can load file:// URIs directly
+                return Uri.fromFile(outputFile); // file:// URI
             }
-        } catch (IOException e) {
+        } catch (Exception e) { // Catch generic exception for broader error logging
             Log.e(TAG, "Error copying URI to internal cache: " + sourceUri.toString(), e);
-            return null;
-        } catch (SecurityException se) {
-            Log.e(TAG, "SecurityException while trying to open URI (this might be the original Glide issue): " + sourceUri.toString(), se);
             return null;
         }
     }
@@ -330,14 +330,8 @@ public class UploadActivity extends AppCompatActivity {
             Toast.makeText(this, getString(R.string.please_select_image), Toast.LENGTH_SHORT).show();
             return;
         }
-        int bedrooms, bathrooms;
-        try {
-            bedrooms = Integer.parseInt(bedroomsStr);
-            bathrooms = Integer.parseInt(bathroomsStr);
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, getString(R.string.bedrooms_bathrooms_must_be_numbers), Toast.LENGTH_SHORT).show();
-            return;
-        }
+        // Bedrooms and bathrooms are already strings, no need to parse if model expects strings.
+        // If model expects int, then parse here. Our model uses String for numBedrooms/Bathrooms.
 
         FirebaseUser currentUserData = firebaseAuth.getCurrentUser();
         if (currentUserData == null) {
@@ -345,43 +339,50 @@ public class UploadActivity extends AppCompatActivity {
             return;
         }
         String sellerId = currentUserData.getUid();
+        String sellerName = currentUserData.getDisplayName() != null ? currentUserData.getDisplayName() : "Unknown Seller"; // Get seller name
+        String sellerContact = currentUserData.getPhoneNumber() != null ? currentUserData.getPhoneNumber() : ""; // Get seller contact if available
 
         progressDialog.setMessage(editingPropertyId != null ? getString(R.string.updating_property) : getString(R.string.uploading_property));
         progressDialog.show();
 
-        String mainImageUrlString = imageStringsForFirestore.isEmpty() ? null : imageStringsForFirestore.get(0);
-
-        Log.d(TAG, "Saving property. Main image URI string (now file://): " + mainImageUrlString);
-        Log.d(TAG, "All image URI strings for Firestore (now file://): " + imageStringsForFirestore.toString());
-        Log.i(TAG, "Note: Storing file:// URIs. These are local to this device and app installation. For sharing or cross-device access, images need to be uploaded to cloud storage and HTTPS URLs stored instead.");
-
-
         String currentStatus;
-        if (editingPropertyId != null && propertyToEdit != null && propertyToEdit.getStatus() != null) {
-            currentStatus = propertyToEdit.getStatus();
+        Date existingTimestamp = null;
+
+        if (editingPropertyId != null && propertyToEdit != null) {
+            currentStatus = propertyToEdit.getStatus(); // Preserve existing status
+            existingTimestamp = propertyToEdit.getTimestamp(); // Preserve existing timestamp
         } else {
-            currentStatus = "Available";
+            currentStatus = Property.STATUS_AVAILABLE; // Default for new property
         }
 
-        Property property = new Property(title, location, price, description, mainImageUrlString,
-                new ArrayList<>(imageStringsForFirestore),
-                sellerId, propertyType, bedrooms, bathrooms, area, currentStatus);
+        // Corrected constructor call
+        Property property = new Property(title, location, price, description,
+                new ArrayList<>(imageStringsForFirestore), // Pass the list of string URIs
+                sellerId, propertyType, bedroomsStr, bathroomsStr, area, currentStatus);
+
+        property.setSellerName(sellerName); // Set seller name
+        property.setSellerContact(sellerContact); // Set seller contact
 
         DocumentReference propertyDocRef;
         if (editingPropertyId != null) {
             propertyDocRef = propertiesCollection.document(editingPropertyId);
-            if (propertyToEdit != null && propertyToEdit.getTimestamp() != null) {
-                property.setTimestamp(propertyToEdit.getTimestamp());
+            property.setPropertyId(editingPropertyId); // Ensure ID is set for existing property
+            if (existingTimestamp != null) {
+                property.setTimestamp(existingTimestamp); // Preserve original timestamp if editing
             } else {
-                property.setTimestamp(null);
+                // If relying on @ServerTimestamp, Firestore will set it on update.
+                // If managing client-side and it was null, it will remain null unless set here.
+                // For @ServerTimestamp, we don't need to set it manually for updates unless we want to force a new one.
             }
         } else {
-            propertyDocRef = propertiesCollection.document();
+            propertyDocRef = propertiesCollection.document(); // New property, Firestore generates ID
             property.setPropertyId(propertyDocRef.getId());
-            property.setTimestamp(null);
+            // For new properties, @ServerTimestamp will set the timestamp.
+            // If not using @ServerTimestamp, set it here: property.setTimestamp(new Date());
         }
 
-        propertyDocRef.set(property, SetOptions.merge())
+
+        propertyDocRef.set(property, SetOptions.merge()) // Use merge to be safe with existing docs
                 .addOnSuccessListener(aVoid -> {
                     dismissProgressDialog();
                     Toast.makeText(UploadActivity.this,
@@ -389,7 +390,7 @@ public class UploadActivity extends AppCompatActivity {
                             Toast.LENGTH_SHORT).show();
                     clearForm();
                     Log.i(TAG, "Property " + (editingPropertyId != null ? "updated" : "saved") + " successfully with ID: " + propertyDocRef.getId());
-                    finish();
+                    finish(); // Go back after successful upload/update
                 })
                 .addOnFailureListener(e -> {
                     dismissProgressDialog();
@@ -407,7 +408,7 @@ public class UploadActivity extends AppCompatActivity {
         editTextBedrooms.setText("");
         editTextBathrooms.setText("");
         editTextArea.setText("");
-        imageUris.clear();
+        imageUrisForAdapter.clear();
         imageStringsForFirestore.clear();
         if (galleryImageAdapter != null) {
             galleryImageAdapter.notifyDataSetChanged();
@@ -423,7 +424,7 @@ public class UploadActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
+            onBackPressed(); // Or finish();
             return true;
         }
         return super.onOptionsItemSelected(item);

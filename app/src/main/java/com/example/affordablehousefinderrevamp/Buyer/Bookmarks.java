@@ -2,23 +2,24 @@ package com.example.affordablehousefinderrevamp.Buyer;
 
 import com.example.affordablehousefinderrevamp.Model.Property;
 import com.example.affordablehousefinderrevamp.R;
+import com.google.firebase.firestore.FirebaseFirestore; // Firestore
+import com.google.firebase.firestore.QueryDocumentSnapshot; // Firestore
 
-import android.content.Context; // Added for LayoutInflater in Adapter
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater; // Added for LayoutInflater in Adapter
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton; // For closeButton
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-// Removed Toolbar import as activity_bookmarks.xml uses TextView and ImageButton for header
-// import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,26 +27,29 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+// Remove Realtime Database imports if fully migrated
+// import com.google.firebase.database.DataSnapshot;
+// import com.google.firebase.database.DatabaseError;
+// import com.google.firebase.database.DatabaseReference;
+// import com.google.firebase.database.FirebaseDatabase;
+// import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Bookmarks extends AppCompatActivity {
 
+    private static final String TAG = "BookmarksActivity";
+
     private RecyclerView bookmarksRecyclerView;
     private BookmarksAdapter bookmarksAdapter;
     private List<Property> bookmarkList;
-    // private Toolbar toolbar; // XML uses TextView and ImageButton instead of a Toolbar
     private TextView titleTextView;
     private ImageButton closeButton;
     private BottomNavigationView bottomNavigationView;
 
-    private DatabaseReference databaseReferenceBookmarks;
+    // Firestore references
+    private FirebaseFirestore db;
     private FirebaseUser currentUser;
     private android.app.ProgressDialog progressDialogInstance;
 
@@ -55,27 +59,24 @@ public class Bookmarks extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bookmarks);
 
-        // UI elements from activity_bookmarks.xml
-        titleTextView = findViewById(R.id.titleTextView); // Title TextView
-        closeButton = findViewById(R.id.closeButton);     // Close ImageButton
+        titleTextView = findViewById(R.id.titleTextView);
+        closeButton = findViewById(R.id.closeButton);
         bookmarksRecyclerView = findViewById(R.id.bookmarksRecyclerView);
-        // Corrected BottomNavigationView ID from activity_bookmarks.xml
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-
-        // Setup for header elements
-        titleTextView.setText("BOOKMARKS"); // Or get from string resource
-        closeButton.setOnClickListener(v -> onBackPressed()); // Or finish();
+        titleTextView.setText("BOOKMARKS");
+        closeButton.setOnClickListener(v -> onBackPressed());
 
         bookmarksRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         bookmarkList = new ArrayList<>();
         bookmarksAdapter = new BookmarksAdapter(this, bookmarkList);
         bookmarksRecyclerView.setAdapter(bookmarksAdapter);
 
+        db = FirebaseFirestore.getInstance(); // Initialize Firestore
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
         if (currentUser != null) {
-            databaseReferenceBookmarks = FirebaseDatabase.getInstance().getReference("bookmarks").child(currentUser.getUid());
-            loadBookmarkDataFromFirebase();
+            loadBookmarkDataFromFirestore();
         } else {
             Toast.makeText(this, "Please log in to see your bookmarks.", Toast.LENGTH_LONG).show();
         }
@@ -83,35 +84,43 @@ public class Bookmarks extends AppCompatActivity {
         setupBottomNavigation();
     }
 
-    private void loadBookmarkDataFromFirebase() {
-        if (databaseReferenceBookmarks == null) return;
+    private void loadBookmarkDataFromFirestore() {
+        if (currentUser == null) return;
         progressDialogShow("Loading bookmarks...");
 
-        databaseReferenceBookmarks.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                bookmarkList.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Property bookmarkedProperty = snapshot.getValue(Property.class);
-                    if (bookmarkedProperty != null) {
-                        bookmarkedProperty.setPropertyId(snapshot.getKey());
-                        bookmarkList.add(bookmarkedProperty);
-                    }
-                }
-                bookmarksAdapter.notifyDataSetChanged();
-                progressDialogHide();
-                if (bookmarkList.isEmpty()) {
-                    Toast.makeText(Bookmarks.this, "No bookmarks yet.", Toast.LENGTH_SHORT).show();
-                }
-            }
+        db.collection("users").document(currentUser.getUid())
+                .collection("bookmarked_properties") // Assuming this is your subcollection for bookmarks
+                .get()
+                .addOnCompleteListener(task -> {
+                    progressDialogHide();
+                    if (task.isSuccessful()) {
+                        bookmarkList.clear();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            // Here, we expect the bookmarked_properties subcollection to store
+                            // full Property objects or at least enough data to display.
+                            // If it only stores property IDs, you'd need another fetch.
+                            // For this example, let's assume it stores partial Property data.
+                            Property bookmarkedProperty = document.toObject(Property.class);
+                            bookmarkedProperty.setPropertyId(document.getId()); // The document ID in bookmarks is the propertyId
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                progressDialogHide();
-                Toast.makeText(Bookmarks.this, "Failed to load bookmarks: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                            // If "bookmarked_properties" only stores IDs and you need full property details:
+                            // String actualPropertyId = document.getString("propertyId"); // If the field is named propertyId
+                            // Then fetch from "properties/{actualPropertyId}"
+                            // This example assumes bookmarked_properties contains enough data directly.
+
+                            bookmarkList.add(bookmarkedProperty);
+                        }
+                        bookmarksAdapter.notifyDataSetChanged();
+                        if (bookmarkList.isEmpty()) {
+                            Toast.makeText(Bookmarks.this, "No bookmarks yet.", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Log.e(TAG, "Error loading bookmarks: ", task.getException());
+                        Toast.makeText(Bookmarks.this, "Failed to load bookmarks.", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
+
 
     private void progressDialogShow(String message) {
         if (progressDialogInstance == null) {
@@ -130,32 +139,25 @@ public class Bookmarks extends AppCompatActivity {
 
     private void setupBottomNavigation() {
         if (bottomNavigationView == null) return;
-        // Since 'bookmarks_buyer' is not in 'bottom_navigation_menu_buyer.xml',
-        // we should select an existing item or none.
-        // For example, if Bookmarks is a sub-screen of Profile, Profile could be selected.
-        // Or, if it's independent, no item might be pre-selected, or Home by default.
-        // For now, let's assume no specific item is pre-selected unless it's a main tab.
-        // If 'Bookmarks' were a main tab with ID R.id.navigation_bookmarks, you'd use that.
-        // bottomNavigationView.setSelectedItemId(R.id.navigation_home); // Example: Select home by default
+        // bottomNavigationView.setSelectedItemId(R.id.navigation_home); // Example
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             Intent intent = null;
             int itemId = item.getItemId();
 
-            // Use IDs from bottom_navigation_menu_buyer.xml
             if (itemId == R.id.navigation_home) {
                 intent = new Intent(Bookmarks.this, Homepage.class);
             } else if (itemId == R.id.navigation_chat) {
-                intent = new Intent(Bookmarks.this, Chat_Buyer.class);
+                intent = new Intent(Bookmarks.this, Chat_Buyer.class); // Assuming Chat_Buyer is the list
             } else if (itemId == R.id.navigation_profile) {
                 intent = new Intent(Bookmarks.this, BuyerProfile.class);
             }
-            // No 'bookmarks_buyer' ID in the menu XML, so no direct navigation to itself via bottom nav.
+            // No R.id.navigation_bookmarks in buyer's bottom nav as per typical design
 
             if (intent != null) {
                 startActivity(intent);
-                overridePendingTransition(0,0);
-                finish();
+                overridePendingTransition(0,0); // No animation
+                finish(); // Finish current activity
                 return true;
             }
             return false;
@@ -174,7 +176,7 @@ public class Bookmarks extends AppCompatActivity {
         @NonNull
         @Override
         public BookmarkViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(context) // Use context for LayoutInflater
+            View view = LayoutInflater.from(context)
                     .inflate(R.layout.list_item_bookmarks, parent, false);
             return new BookmarkViewHolder(view);
         }
@@ -182,15 +184,18 @@ public class Bookmarks extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull BookmarkViewHolder holder, int position) {
             Property currentItem = items.get(position);
-            holder.houseNameTextView.setText(currentItem.getTitle());
+            if (currentItem == null) return;
+
+            holder.houseNameTextView.setText(currentItem.getName()); // Corrected to getName()
             holder.housePriceTextView.setText(currentItem.getPrice());
             holder.houseLocationTextView.setText(currentItem.getLocation());
 
-            if (currentItem.getImageUrl() != null && !currentItem.getImageUrl().isEmpty()) {
+            String imageUrl = currentItem.getPrimaryImageUrl(); // Corrected to use getPrimaryImageUrl()
+            if (imageUrl != null && !imageUrl.isEmpty()) {
                 Glide.with(context)
-                        .load(currentItem.getImageUrl())
+                        .load(imageUrl)
                         .placeholder(R.drawable.placeholder_image)
-                        .error(R.drawable.ic_launcher_background)
+                        .error(R.drawable.ic_launcher_background) // Consider a more generic error placeholder
                         .into(holder.houseImageView);
             } else {
                 holder.houseImageView.setImageResource(R.drawable.placeholder_image);
@@ -198,6 +203,8 @@ public class Bookmarks extends AppCompatActivity {
 
             holder.itemView.setOnClickListener(v -> {
                 Intent detailIntent = new Intent(context, PropertyDetail.class);
+                // The propertyId for the detail view should be the actual ID of the property,
+                // which is assumed to be the document ID in the bookmarked_properties subcollection.
                 detailIntent.putExtra("propertyId", currentItem.getPropertyId());
                 context.startActivity(detailIntent);
             });
@@ -223,7 +230,4 @@ public class Bookmarks extends AppCompatActivity {
             }
         }
     }
-
-    // Removed onOptionsItemSelected as Toolbar is not used in the same way.
-    // Back press is handled by closeButton and system back.
 }
