@@ -28,7 +28,7 @@
                 android:layout_width="0dp"
                 android:layout_height="250dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/placeholder"
+                android:src="@drawable/placeholder_image"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -81,13 +81,14 @@
                 app:layout_constraintTop_toBottomOf="@id/propertyImageView"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="@+id/descriptionEditIcon"/>
+                app:layout_constraintBottom_toBottomOf="@+id/descriptionEditIcon" />
+
 
             <TextView
                 android:id="@+id/propertyTitleTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="MODERN HOUSE"
+                tools:text="MODERN HOUSE"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/black"
@@ -102,7 +103,7 @@
                 android:id="@+id/propertyPriceTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="PHP 20,000,000"
+                tools:text="PHP 20,000,000"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:textColor="#D32F2F"
@@ -129,10 +130,11 @@
                 android:id="@+id/locationTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Bakakeng North"
+                tools:text="Bakakeng North"
                 android:textSize="16sp"
                 android:textColor="@color/black"
                 android:layout_marginStart="8dp"
+                android:layout_marginEnd="16dp"
                 app:layout_constraintStart_toEndOf="@id/locationIcon"
                 app:layout_constraintTop_toTopOf="@id/locationIcon"
                 app:layout_constraintBottom_toBottomOf="@id/locationIcon"
@@ -147,17 +149,17 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/locationIcon"
-                android:contentDescription="@string/condition_icon"/>
+                app:layout_constraintTop_toBottomOf="@id/locationTextView" android:contentDescription="@string/condition_icon"/>
 
             <TextView
                 android:id="@+id/conditionTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Brand New"
+                tools:text="Brand New"
                 android:textSize="16sp"
                 android:textColor="@color/black"
                 android:layout_marginStart="8dp"
+                android:layout_marginEnd="16dp"
                 app:layout_constraintStart_toEndOf="@id/conditionIcon"
                 app:layout_constraintTop_toTopOf="@id/conditionIcon"
                 app:layout_constraintBottom_toBottomOf="@id/conditionIcon"
@@ -172,17 +174,17 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/conditionIcon"
-                android:contentDescription="@string/bookmarks_icon"/>
+                app:layout_constraintTop_toBottomOf="@id/conditionTextView" android:contentDescription="@string/bookmarks_icon"/>
 
             <TextView
                 android:id="@+id/bookmarkTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="0 Bookmarks"
+                tools:text="0 Bookmarks"
                 android:textSize="16sp"
                 android:textColor="@color/black"
                 android:layout_marginStart="8dp"
+                android:layout_marginEnd="16dp"
                 app:layout_constraintStart_toEndOf="@id/bookmarkIcon"
                 app:layout_constraintTop_toTopOf="@id/bookmarkIcon"
                 app:layout_constraintBottom_toBottomOf="@id/bookmarkIcon"
@@ -199,27 +201,25 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/bookmarkIcon"/>
-
-            <ImageButton
-                android:id="@+id/descriptionEditIcon"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:src="@drawable/ic_edit_24"
-                app:tint="@color/black"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_marginStart="8dp"
-                android:padding="4dp"
-                app:layout_constraintStart_toEndOf="@id/descriptionLabelTextView"
-                app:layout_constraintBottom_toBottomOf="@id/descriptionLabelTextView"
-                app:layout_constraintTop_toTopOf="@id/descriptionLabelTextView"
-                android:contentDescription="@string/edit_description_button"/>
+                app:layout_constraintTop_toBottomOf="@id/bookmarkTextView"/> <ImageButton
+            android:id="@+id/descriptionEditIcon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_edit_24"
+            app:tint="@color/black"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_marginStart="8dp"
+            android:padding="4dp"
+            app:layout_constraintStart_toEndOf="@id/descriptionLabelTextView"
+            app:layout_constraintBottom_toBottomOf="@id/descriptionLabelTextView"
+            app:layout_constraintTop_toTopOf="@id/descriptionLabelTextView"
+            android:contentDescription="@string/edit_description_button"/>
 
             <TextView
                 android:id="@+id/descriptionTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="This modern house is located within Northern Bakakeng, complete with 1 king-size room and 2 rooms, a balcony, and a lounge, and a toilet and shower on the second floor. On the first floor, there is a large kitchen, living room, storage area, and toilets. The home is close to accessible stores and to the main road where jeeps frequent the area."
+                tools:text="This modern house is located within Northern Bakakeng, complete with 1 king-size room and 2 rooms, a balcony, and a lounge, and a toilet and shower on the second floor. On the first floor, there is a large kitchen, living room, storage area, and toilets. The home is close to accessible stores and to the main road where jeeps frequent the area."
                 android:textSize="16sp"
                 android:textColor="@android:color/black"
                 android:layout_marginStart="16dp"
@@ -243,15 +243,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:elevation="4dp"> <Button
-        android:id="@+id/viewInsightsButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="View Insights"
-        android:backgroundTint="#FFE0E0"
-        android:textColor="#D32F2F"
-        android:layout_marginEnd="4dp"/>
+        android:elevation="4dp">
+
+        <Button
+            android:id="@+id/viewInsightsButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="View Insights"
+            android:backgroundTint="#FFE0E0"
+            android:textColor="#D32F2F"
+            android:layout_marginEnd="4dp"/>
 
         <Button
             android:id="@+id/noChatsButton"

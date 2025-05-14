@@ -109,10 +109,10 @@ public class SellerPropertyDetails extends AppCompatActivity {
         popup.getMenuInflater().inflate(R.menu.seller_property_options_menu, popup.getMenu());
         popup.setOnMenuItemClickListener(item -> {
             int itemId = item.getItemId();
-            if (itemId == R.id.action_edit_property_details) {
+            if (itemId == R.id.action_edit_property) {
                 editProperty();
                 return true;
-            } else if (itemId == R.id.action_delete_property_details) {
+            } else if (itemId == R.id.action_remove_property) {
                 confirmDeleteProperty();
                 return true;
             }

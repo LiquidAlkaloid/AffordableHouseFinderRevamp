@@ -1,8 +1,17 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
-        android:id="@+id/action_edit_property_details"
-        android:title="Edit Property"/>
+        android:id="@+id/action_edit_property"
+        android:title="Edit Listing"
+        android:icon="@android:drawable/ic_menu_edit"
+        app:showAsAction="ifRoom" />
+
     <item
-        android:id="@+id/action_delete_property_details"
-        android:title="Delete Property"/>
+        android:id="@+id/action_remove_property"
+        android:title="Remove Listing"
+        android:icon="@android:drawable/ic_menu_delete"
+        app:showAsAction="ifRoom" />
+
 </menu>
