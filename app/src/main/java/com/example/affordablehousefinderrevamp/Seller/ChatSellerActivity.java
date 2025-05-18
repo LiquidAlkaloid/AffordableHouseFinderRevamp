@@ -96,68 +96,22 @@ public class ChatSellerActivity extends AppCompatActivity {
 
     private void loadChatList() {
         CollectionReference chatSessionsRef = db.collection("users")
-                .document(currentUser.getUid())
+                .document(currentUser .getUid())
                 .collection("chat_sessions");
-
-        Log.d(TAG, "Loading chat sessions for seller: " + currentUser.getUid());
-
         chatListenerRegistration = chatSessionsRef
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .addSnapshotListener((snapshots, e) -> {
                     if (e != null) {
-                        Log.w(TAG, "Listen failed for seller chat list.", e);
-                        Toast.makeText(this, "Failed to load chats: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Failed to load chats.", Toast.LENGTH_SHORT).show();
                         return;
                     }
-
                     if (snapshots != null) {
-                        chatList.clear(); // Clear the list before adding new items
-
-                        Log.d(TAG, "Number of chat sessions: " + snapshots.size());
-
+                        chatList.clear();
                         for (DocumentSnapshot doc : snapshots.getDocuments()) {
-                            Log.d(TAG, "Processing chat session: " + doc.getId() + " with data: " + doc.getData());
-
-                            // Manually map fields into ChatItem
-                            ChatItem chatItem = new ChatItem();
-                            chatItem.setChatId(doc.getId());
-                            chatItem.setOtherUserId(doc.getString("otherUserId"));
-                            chatItem.setSenderName(doc.getString("senderName"));
-                            chatItem.setLastMessage(doc.getString("lastMessage"));
-                            Number uc = doc.getLong("unreadCount");
-                            chatItem.setUnreadCount(uc != null ? uc.intValue() : 0);
-
-                            Timestamp ts = doc.getTimestamp("timestamp");
-                            chatItem.setTimestampDate(ts != null ? ts.toDate() : null);
-
-                            chatItem.setPropertyId(doc.getString("propertyId"));
-                            chatItem.setPropertyName(doc.getString("propertyName"));
-                            chatItem.setOfferStatus(doc.getString("offerStatus"));
-                            chatItem.setConversationClosed(doc.getBoolean("conversationClosed"));
-
-                            // Ensure senderName is populated
-                            if (chatItem.getSenderName() == null && chatItem.getOtherUserId() != null) {
-                                fetchOtherUserDetails(chatItem, chatItem.getOtherUserId());
-                            }
-
+                            ChatItem chatItem = doc.toObject(ChatItem.class);
                             chatList.add(chatItem);
                         }
-
-                        // Sort descending by timestampDate
-                        chatList.sort((a, b) -> {
-                            Date d1 = a.getTimestampDate(), d2 = b.getTimestampDate();
-                            if (d1 == null && d2 == null) return 0;
-                            if (d1 == null) return 1;
-                            if (d2 == null) return -1;
-                            return d2.compareTo(d1);
-                        });
-
                         chatSellerAdapter.notifyDataSetChanged();
-
-                        if (chatList.isEmpty()) {
-                            Log.d(TAG, "No active chats found for seller");
-                            Toast.makeText(this, "No active chats.", Toast.LENGTH_SHORT).show();
-                        }
                     }
                 });
     }

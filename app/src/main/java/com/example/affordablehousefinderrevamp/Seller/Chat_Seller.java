@@ -33,6 +33,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
@@ -240,22 +241,25 @@ public class Chat_Seller extends AppCompatActivity {
     }
 
     private void listenToMessages() {
-        if (chatId.startsWith("error_")) return;
-        CollectionReference msgs = db.collection("chats")
-                .document(chatId).collection("messages");
-        messagesListenerRegistrationSeller = msgs.orderBy("timestamp", Query.Direction.ASCENDING)
-                .addSnapshotListener((snap, e) -> {
+        if (TextUtils.isEmpty(chatId)) {
+            return;
+        }
+        CollectionReference messagesRef = db.collection("chats").document(chatId).collection("messages");
+        messagesListenerRegistrationSeller = messagesRef.orderBy("timestamp", Query.Direction.ASCENDING)
+                .addSnapshotListener((snapshots, e) -> {
                     if (e != null) {
-                        Log.e(TAG, "Messages listen failed", e);
                         Toast.makeText(this, "Failed to load messages.", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    messageListSeller.clear();
-                    for (Message m : snap.toObjects(Message.class)) {
-                        messageListSeller.add(m);
+                    if (snapshots != null) {
+                        messageListSeller.clear();
+                        for (QueryDocumentSnapshot doc : snapshots) {
+                            Message message = doc.toObject(Message.class);
+                            messageListSeller.add(message);
+                        }
+                        messageAdapterSeller.notifyDataSetChanged();
+                        recyclerViewMessagesChatSeller.smoothScrollToPosition(messageListSeller.size() - 1);
                     }
-                    messageAdapterSeller.notifyDataSetChanged();
-                    recyclerViewMessagesChatSeller.smoothScrollToPosition(messageListSeller.size()-1);
                 });
     }
 

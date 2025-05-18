@@ -13,6 +13,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,8 +27,6 @@ import com.example.affordablehousefinderrevamp.Model.Message;
 import com.example.affordablehousefinderrevamp.Model.Property;
 import com.example.affordablehousefinderrevamp.R;
 import com.example.affordablehousefinderrevamp.User;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -383,40 +384,24 @@ public class Chat_Buyer extends AppCompatActivity {
             Toast.makeText(this, "Cannot send an empty message.", Toast.LENGTH_SHORT).show();
             return;
         }
-        // Critical info checked in onCreate and user detail loading callbacks
-        if (currentFirebaseUser == null || TextUtils.isEmpty(sellerId) || TextUtils.isEmpty(chatId) || chatId.startsWith("error_") || currentBuyerDetails == null || sellerDetails == null) {
+        // Ensure currentUser is initialized
+        if (currentBuyerDetails == null || TextUtils.isEmpty(sellerId) || TextUtils.isEmpty(chatId)) {
             Toast.makeText(this, "Cannot send message: session or user details missing.", Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "sendMessage: Pre-condition fail. BuyerAuth: " + (currentFirebaseUser != null) + ", SellerId: " + sellerId + ", ChatId: " + chatId + ", BuyerDetails: " + (currentBuyerDetails != null) + ", SellerDetails: " + (sellerDetails != null));
             return;
         }
-
-        String currentUserId = currentFirebaseUser.getUid();
-        // Ensure senderId is current user's UID and receiverId is the other participant's UID
-        if (TextUtils.isEmpty(currentUserId) || TextUtils.isEmpty(sellerId)) {
-            Log.e(TAG, "sendMessage: Sender or Receiver UID is empty. Cannot send message.");
-            Toast.makeText(this, "Error sending message: User ID missing.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+        String currentUserId = currentBuyerDetails.getId();
         Message message = new Message(currentUserId, sellerId, messageText);
-        Log.i(TAG, "SEND_MESSAGE: Attempting to send. ChatId: '" + chatId + "', Sender: " + currentUserId + ", Receiver: " + sellerId + ", Text: '" + message.getText() + "'");
-
         db.collection("chats").document(chatId).collection("messages")
                 .add(message)
                 .addOnSuccessListener(documentReference -> {
                     etMessageInput.setText("");
-                    Log.i(TAG, "SEND_MESSAGE_SUCCESS: Message sent to /chats/" + chatId + "/messages. ID: " + documentReference.getId());
                     updateChatSessionMetadataOnSend(messageText);
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(Chat_Buyer.this, "Failed to send message.", Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, "SEND_MESSAGE_ERROR: Error sending message to /chats/" + chatId + "/messages. Sender: " + currentUserId + ", Receiver: " + sellerId, e);
-                    if (e instanceof FirebaseFirestoreException && ((FirebaseFirestoreException) e).getCode() == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
-                        Log.e(TAG, "SEND_MESSAGE_ERROR: PERMISSION_DENIED. ChatId: " + chatId + ". Check Firestore rules (isOneOfTwoChatParticipants, senderId match, receiverId match).");
-                        Toast.makeText(Chat_Buyer.this, "Permission denied to send message.", Toast.LENGTH_LONG).show();
-                    }
                 });
     }
+
 
     private void createOrUpdateChatSessionMetadata() {
         // Critical info checked in onCreate and user detail loading callbacks
