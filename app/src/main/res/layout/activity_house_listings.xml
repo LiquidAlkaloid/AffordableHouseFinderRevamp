@@ -42,6 +42,17 @@
         android:clipToPadding="false"
         tools:listitem="@layout/list_item_house" />
 
+    <TextView
+        android:id="@+id/emptyViewSellerListings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="You have not listed any properties yet."
+        android:textSize="16sp"
+        android:textColor="@color/grey_text"
+        android:visibility="gone"
+        tools:visibility="visible"/>
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation_seller"
         android:layout_width="match_parent"
