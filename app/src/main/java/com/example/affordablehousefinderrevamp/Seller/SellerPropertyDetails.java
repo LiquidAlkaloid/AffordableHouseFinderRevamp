@@ -24,10 +24,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QueryDocumentSnapshot; // Keep for checkForChats
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayList; // Keep for checkForChats
+import java.util.List; // Keep for checkForChats
 
 public class SellerPropertyDetails extends AppCompatActivity {
 
@@ -37,7 +37,7 @@ public class SellerPropertyDetails extends AppCompatActivity {
     private ImageButton backButton, shareButton, moreOptionsButton, descriptionEditIcon;
     private TextView propertyTitleTextView, propertyPriceTextView, locationTextView,
             conditionTextView, bookmarkTextView, descriptionTextView;
-    private Button viewInsightsButton, noChatsButton;
+    private Button viewInsightsButton, noChatsButton; // viewInsightsButton will now be View Offers
 
     private FirebaseFirestore db;
     private DocumentReference propertyDocRef;
@@ -46,8 +46,12 @@ public class SellerPropertyDetails extends AppCompatActivity {
 
     private String propertyId;
     private Property currentProperty;
-    private List<String> chatIds = new ArrayList<>();
-    private List<String> buyerIds = new ArrayList<>();
+
+    // For handling chats related to this property specifically via noChatsButton
+    private List<String> propertySpecificChatIds = new ArrayList<>();
+    private List<String> propertySpecificBuyerIds = new ArrayList<>();
+    private List<String> propertySpecificBuyerNames = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +67,7 @@ public class SellerPropertyDetails extends AppCompatActivity {
         propertyPriceTextView = findViewById(R.id.propertyPriceTextView);
         locationTextView = findViewById(R.id.locationTextView);
         conditionTextView = findViewById(R.id.conditionTextView);
-        bookmarkTextView = findViewById(R.id.bookmarkTextView);
+        bookmarkTextView = findViewById(R.id.bookmarkTextView); // This might show bookmark count by buyers
         descriptionTextView = findViewById(R.id.descriptionTextView);
         viewInsightsButton = findViewById(R.id.viewInsightsButton);
         noChatsButton = findViewById(R.id.noChatsButton);
@@ -86,127 +90,90 @@ public class SellerPropertyDetails extends AppCompatActivity {
         propertyDocRef = db.collection("properties").document(propertyId);
 
         loadPropertyDetails();
-        checkForChats();
+        checkForPropertyChats(); // Renamed to avoid confusion with general chat list
 
         backButton.setOnClickListener(v -> onBackPressed());
         shareButton.setOnClickListener(v -> shareProperty());
         moreOptionsButton.setOnClickListener(this::showMoreOptionsMenu);
         descriptionEditIcon.setOnClickListener(v -> editProperty());
-        viewInsightsButton.setOnClickListener(v -> Toast.makeText(this, "View Insights (not implemented)", Toast.LENGTH_SHORT).show());
 
-        // Set up the noChatsButton click listener
+        viewInsightsButton.setText("View Offers"); // Update button text
+        viewInsightsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(SellerPropertyDetails.this, OffersListActivity.class);
+            intent.putExtra("propertyId", propertyId);
+            startActivity(intent);
+        });
+
         noChatsButton.setOnClickListener(v -> {
-            if (chatIds.isEmpty()) {
+            if (propertySpecificChatIds.isEmpty()) {
                 Toast.makeText(SellerPropertyDetails.this, "No chats available for this property", Toast.LENGTH_SHORT).show();
-            } else if (chatIds.size() == 1) {
-                // If there's only one chat, go directly to it
-                navigateToChat(chatIds.get(0), buyerIds.get(0));
+            } else if (propertySpecificChatIds.size() == 1) {
+                navigateToChat(propertySpecificChatIds.get(0), propertySpecificBuyerIds.get(0), propertySpecificBuyerNames.get(0));
             } else {
-                // If there are multiple chats, show a dialog to choose
-                showChatSelectionDialog();
+                showPropertyChatSelectionDialog();
             }
         });
     }
 
-    private void checkForChats() {
-        // Reset lists
-        chatIds.clear();
-        buyerIds.clear();
+    private void checkForPropertyChats() {
+        propertySpecificChatIds.clear();
+        propertySpecificBuyerIds.clear();
+        propertySpecificBuyerNames.clear();
 
-        // Update button text to show loading state
-        noChatsButton.setText("Checking for chats...");
+        noChatsButton.setText("Checking for chats..."); // Loading state
 
-        // Query for chat sessions related to this property
         db.collection("users")
                 .document(currentUser.getUid())
                 .collection("chat_sessions")
-                .whereEqualTo("propertyId", propertyId)
+                .whereEqualTo("propertyId", propertyId) // Filter chats by this propertyId
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots.isEmpty()) {
-                        noChatsButton.setText("No chats yet");
+                        noChatsButton.setText("No Property Chats");
                     } else {
                         for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                             String chatId = document.getId();
                             String buyerId = document.getString("otherUserId");
+                            String buyerName = document.getString("senderName"); // In seller's chat_session, senderName is buyer's name
 
-                            if (buyerId != null) {
-                                chatIds.add(chatId);
-                                buyerIds.add(buyerId);
+                            if (buyerId != null && buyerName != null) {
+                                propertySpecificChatIds.add(chatId);
+                                propertySpecificBuyerIds.add(buyerId);
+                                propertySpecificBuyerNames.add(buyerName);
                             }
                         }
-
-                        // Update button text with chat count
-                        noChatsButton.setText(chatIds.size() + " Chat" + (chatIds.size() > 1 ? "s" : ""));
+                        noChatsButton.setText(propertySpecificChatIds.size() + " Property Chat" + (propertySpecificChatIds.size() > 1 ? "s" : ""));
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error checking for chats", e);
-                    noChatsButton.setText("No chats yet");
+                    Log.e(TAG, "Error checking for property-specific chats", e);
+                    noChatsButton.setText("Chat (Error)");
                 });
     }
 
-    private void showChatSelectionDialog() {
-        if (chatIds.isEmpty() || buyerIds.isEmpty()) {
-            Toast.makeText(this, "No chats available", Toast.LENGTH_SHORT).show();
+    private void showPropertyChatSelectionDialog() {
+        if (propertySpecificChatIds.isEmpty()) {
+            Toast.makeText(this, "No chats available for this property", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Get buyer names for each chat
-        List<String> buyerNames = new ArrayList<>();
-        for (String buyerId : buyerIds) {
-            buyerNames.add("Loading..."); // Placeholder until we load the actual names
-        }
-
-        // Create dialog with placeholder names
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select a chat");
+        builder.setTitle("Select a Chat for this Property");
 
-        // Create and show the dialog with placeholders
-        AlertDialog dialog = builder.setItems(buyerNames.toArray(new String[0]), null)
+        // Use buyerNames directly as they are already fetched in checkForPropertyChats
+        builder.setItems(propertySpecificBuyerNames.toArray(new String[0]), (dialog, which) -> {
+                    navigateToChat(propertySpecificChatIds.get(which), propertySpecificBuyerIds.get(which), propertySpecificBuyerNames.get(which));
+                })
                 .setNegativeButton("Cancel", null)
-                .create();
-
-        dialog.show();
-
-        // Now load the actual buyer names and update the dialog
-        for (int i = 0; i < buyerIds.size(); i++) {
-            final int index = i;
-            db.collection("users").document(buyerIds.get(i))
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        if (documentSnapshot.exists()) {
-                            String buyerName = documentSnapshot.getString("name");
-                            if (buyerName != null) {
-                                buyerNames.set(index, buyerName);
-
-                                // Update dialog with new names
-                                if (dialog.isShowing()) {
-                                    dialog.getListView().setAdapter(
-                                            new android.widget.ArrayAdapter<>(
-                                                    this,
-                                                    android.R.layout.simple_list_item_1,
-                                                    buyerNames
-                                            )
-                                    );
-
-                                    // Set click listener for the items
-                                    dialog.getListView().setOnItemClickListener((parent, view, position, id) -> {
-                                        dialog.dismiss();
-                                        navigateToChat(chatIds.get(position), buyerIds.get(position));
-                                    });
-                                }
-                            }
-                        }
-                    })
-                    .addOnFailureListener(e -> Log.e(TAG, "Error loading buyer name", e));
-        }
+                .show();
     }
 
-    private void navigateToChat(String chatId, String buyerId) {
+
+    private void navigateToChat(String chatId, String buyerId, String buyerName) {
         Intent intent = new Intent(SellerPropertyDetails.this, Chat_Seller.class);
         intent.putExtra("chatId", chatId);
         intent.putExtra("buyerId", buyerId);
+        intent.putExtra("buyerName", buyerName); // Pass buyer name for header
         intent.putExtra("propertyId", propertyId);
         if (currentProperty != null) {
             intent.putExtra("propertyName", currentProperty.getTitle());
@@ -218,12 +185,17 @@ public class SellerPropertyDetails extends AppCompatActivity {
         if (currentProperty != null) {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
-            String shareBody = "Check out this property: " + currentProperty.getTitle() + "\nLocation: " + currentProperty.getLocation();
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Property: " + currentProperty.getTitle());
+            // Consider generating a dynamic link or a web URL if your app has a web component
+            String propertyShareUrl = "https://your-app-domain.com/property/" + propertyId; // Placeholder
+            String shareBody = "Check out this property: " + currentProperty.getTitle() +
+                    "\nLocation: " + currentProperty.getLocation() +
+                    "\nPrice: " + currentProperty.getPrice() +
+                    "\nFind it on AffordableHouseFinder: " + propertyShareUrl; // Example
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Property For Sale: " + currentProperty.getTitle());
             shareIntent.putExtra(Intent.EXTRA_TEXT, shareBody);
             startActivity(Intent.createChooser(shareIntent, "Share via"));
         } else {
-            Toast.makeText(this, "Details not loaded.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Property details not loaded yet.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -245,6 +217,7 @@ public class SellerPropertyDetails extends AppCompatActivity {
     }
 
     private void loadPropertyDetails() {
+        if (propertyDocRef == null) return;
         propertyListener = propertyDocRef.addSnapshotListener((snapshot, e) -> {
             if (e != null) {
                 Log.w(TAG, "Listen failed.", e);
@@ -256,8 +229,11 @@ public class SellerPropertyDetails extends AppCompatActivity {
             if (snapshot != null && snapshot.exists()) {
                 currentProperty = snapshot.toObject(Property.class);
                 if (currentProperty != null) {
+                    currentProperty.setPropertyId(snapshot.getId()); // Ensure propertyId is set
                     if (!currentUser.getUid().equals(currentProperty.getSellerId())) {
-                        Toast.makeText(SellerPropertyDetails.this, "Not authorized.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(SellerPropertyDetails.this, "You are not authorized to view these seller details.", Toast.LENGTH_LONG).show();
+                        // Fallback to buyer view or finish
+                        // For now, finish
                         finish();
                         return;
                     }
@@ -267,7 +243,7 @@ public class SellerPropertyDetails extends AppCompatActivity {
                     finish();
                 }
             } else {
-                Log.d(TAG, "Current data: null");
+                Log.d(TAG, "Current data: null. Property might have been deleted.");
                 Toast.makeText(SellerPropertyDetails.this, "Property details not found.", Toast.LENGTH_SHORT).show();
                 finish();
             }
@@ -281,28 +257,55 @@ public class SellerPropertyDetails extends AppCompatActivity {
         propertyPriceTextView.setText(currentProperty.getPrice());
         locationTextView.setText(currentProperty.getLocation());
         descriptionTextView.setText(currentProperty.getDescription());
-        conditionTextView.setText(currentProperty.getPropertyType());
-        bookmarkTextView.setText("N/A Bookmarks");
+        conditionTextView.setText("Type: " + currentProperty.getPropertyType()); // Changed to Property Type
+        // bookmarkTextView could show how many buyers bookmarked this. This requires an aggregation.
+        // For now, let's keep it simple or query for it.
+        // For simplicity, we'll keep the placeholder or fetch this count if needed.
+        fetchBookmarkCount(); // Placeholder for fetching bookmark count
 
         String imageUrlToLoad = null;
-        if (currentProperty.getImageUrl() != null && !currentProperty.getImageUrl().isEmpty()) {
-            imageUrlToLoad = currentProperty.getImageUrl();
-        } else if (currentProperty.getImageUrls() != null && !currentProperty.getImageUrls().isEmpty()) {
+        if (currentProperty.getImageUrls() != null && !currentProperty.getImageUrls().isEmpty()) {
             imageUrlToLoad = currentProperty.getImageUrls().get(0);
+        } else if (currentProperty.getImageUrl() != null && !currentProperty.getImageUrl().isEmpty()) {
+            imageUrlToLoad = currentProperty.getImageUrl();
         }
+
 
         if (imageUrlToLoad != null) {
             Glide.with(this).load(imageUrlToLoad)
-                    .placeholder(R.drawable.placeholder)
-                    .error(R.drawable.ic_launcher_background)
+                    .placeholder(R.drawable.placeholder_image) // Ensure you have placeholder_image
+                    .error(R.drawable.ic_launcher_background) // Or a more generic error placeholder
                     .into(propertyImageView);
         } else {
-            propertyImageView.setImageResource(R.drawable.placeholder);
+            propertyImageView.setImageResource(R.drawable.placeholder_image);
         }
     }
 
+    private void fetchBookmarkCount() {
+        // This is a more complex query that requires querying the 'users' collection,
+        // then for each user, their 'bookmarked_properties' subcollection.
+        // Firestore doesn't support direct count queries across collections like this efficiently for the client.
+        // A common approach is to maintain a counter on the property document itself,
+        // updated via Cloud Functions when a bookmark is added/removed.
+        // For simplicity here, we'll just show a placeholder or "N/A".
+        db.collectionGroup("bookmarked_properties")
+                .whereEqualTo("propertyId", propertyId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    bookmarkTextView.setText(queryDocumentSnapshots.size() + " Bookmarks");
+                })
+                .addOnFailureListener(e -> {
+                    bookmarkTextView.setText("N/A Bookmarks");
+                    Log.w(TAG, "Error fetching bookmark count.", e);
+                });
+    }
+
+
     private void editProperty() {
-        if (currentProperty == null) return;
+        if (currentProperty == null || propertyId == null) {
+            Toast.makeText(this, "Property data not available for editing.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Intent editIntent = new Intent(this, UploadActivity.class);
         editIntent.putExtra("propertyIdToEdit", propertyId);
         startActivity(editIntent);
@@ -312,7 +315,7 @@ public class SellerPropertyDetails extends AppCompatActivity {
         if (currentProperty == null) return;
         new AlertDialog.Builder(this)
                 .setTitle("Delete Property")
-                .setMessage("Are you sure you want to delete this listing?")
+                .setMessage("Are you sure you want to delete '" + currentProperty.getTitle() + "' listing?")
                 .setPositiveButton("Delete", (dialog, which) -> deletePropertyFromFirestore())
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -321,10 +324,16 @@ public class SellerPropertyDetails extends AppCompatActivity {
     private void deletePropertyFromFirestore() {
         if (propertyId == null) return;
         Log.d(TAG, "Attempting to delete property: " + propertyId);
+        // Consider also deleting associated offers and chat_sessions or notifying users.
+        // For now, just deleting the property.
         propertyDocRef.delete()
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(SellerPropertyDetails.this, "Property deleted.", Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "Property deleted successfully: " + propertyId);
+                    // Navigate back to the listings page or finish activity
+                    Intent intent = new Intent(SellerPropertyDetails.this, HouseListings.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
                     finish();
                 })
                 .addOnFailureListener(e -> {
@@ -336,9 +345,11 @@ public class SellerPropertyDetails extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh chat status when returning to this screen
         if (currentUser != null && propertyId != null) {
-            checkForChats();
+            checkForPropertyChats(); // Refresh chat button status
+            if (propertyDocRef != null && propertyListener == null) { // Re-attach listener if it was removed
+                loadPropertyDetails();
+            }
         }
     }
 
@@ -347,6 +358,7 @@ public class SellerPropertyDetails extends AppCompatActivity {
         super.onStop();
         if (propertyListener != null) {
             propertyListener.remove();
+            propertyListener = null; // Good practice
         }
     }
 }

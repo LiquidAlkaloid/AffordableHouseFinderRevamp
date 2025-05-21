@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp"
+    android:layout_margin="8dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/img_property_offer"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/placeholder_image"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="Property Image" />
+
+        <TextView
+            android:id="@+id/tv_property_title_offer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            tools:text="Modern House"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/img_property_offer"
+            app:layout_constraintTop_toTopOf="@id/img_property_offer" />
+
+        <TextView
+            android:id="@+id/tv_offer_amount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            tools:text="Offer: PHP 4,500,000"
+            android:textColor="@color/property_price_text_color"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@id/tv_property_title_offer"
+            app:layout_constraintStart_toStartOf="@id/tv_property_title_offer"
+            app:layout_constraintTop_toBottomOf="@id/tv_property_title_offer" />
+
+        <TextView
+            android:id="@+id/tv_buyer_name_offer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            tools:text="From: Buyer Name"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="@id/tv_property_title_offer"
+            app:layout_constraintStart_toStartOf="@id/tv_property_title_offer"
+            app:layout_constraintTop_toBottomOf="@id/tv_offer_amount" />
+
+        <TextView
+            android:id="@+id/tv_offer_status"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            tools:text="Status: Pending"
+            android:textColor="@color/grey_text"
+            android:textSize="14sp"
+            android:textStyle="italic"
+            app:layout_constraintStart_toStartOf="@id/tv_buyer_name_offer"
+            app:layout_constraintEnd_toEndOf="@id/tv_buyer_name_offer"
+            app:layout_constraintTop_toBottomOf="@id/tv_buyer_name_offer"/>
+
+
+        <Button
+            android:id="@+id/btn_accept_offer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="4dp"
+            android:backgroundTint="#C8E6C9"
+            android:text="Accept Offer"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_vertical_offer"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/img_property_offer" />
+
+        <Button
+            android:id="@+id/btn_decline_offer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:backgroundTint="#FFCDD2"
+            android:text="Decline Offer"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@+id/guideline_vertical_offer"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/btn_accept_offer" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_vertical_offer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
